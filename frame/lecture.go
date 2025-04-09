@@ -1,9 +1,9 @@
 package frame
 
 import (
-	c "eb/clrs"
-	f "eb/fonts"
-	"eb/nump"
+	c "github.com/not-learning/app/clrs"
+	f "github.com/not-learning/app/fonts"
+	"github.com/not-learning/app/nump"
 	"log"
 	"strconv"
 

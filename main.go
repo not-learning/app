@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"math"
-	"eb/lectures/maths"
-	//f "eb/fonts"
+	"github.com/not-learning/app/lectures/maths"
+	//f "github.com/not-learning/app/fonts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

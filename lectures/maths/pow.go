@@ -1,8 +1,8 @@
 package maths
 
 import (
-	//c "eb/clrs"
-	"eb/frame"
+	//c "github.com/not-learning/app/clrs"
+	"github.com/not-learning/app/frame"
 	//_ "embed"
 	"strings"
 	"encoding/csv"
