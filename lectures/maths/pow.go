@@ -3,6 +3,7 @@ package maths
 import (
 	//c "github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/frame"
+	//"github.com/not-learning/app/tracks"
 	//_ "embed"
 	"strings"
 	"encoding/csv"
@@ -12,6 +13,7 @@ import (
 
 type Power struct {
 	*frame.Lecture
+	//tracks *tracks.Tracks
 }
 
 /*//go:embed powScript.txt
@@ -20,18 +22,7 @@ var script string
 ////go:embed powText.txt
 var text1 = `5×2 = 5+5`
 
-var text2 = `5² = 5×5
-5³ = 5×5×5
-5⁴ = 5×5×5×5
-5⁵ = 5×5×5×5×5`
-
-////go:embed powProblem.txt
-var problem = `10² = 
-100
-10³ = 
-1000
-10⁴ = 
-10000`//*/
+////go:embed powProblem.txt//*/
 
 // text|ans
 var ex0 = `|`
@@ -46,18 +37,19 @@ var ex2 = `|
 var ex3 = `10² = |100
 10³ = |1000
 10⁴ = |10000`
+//10ˣ = |1000000`
 
-var t1 = `Ты знаешь, что умножение - это сложение одинаковых чисел.
+var t1 = `Ты конечно знаешь, что умножение - это сложение одинаковых чисел.
 Пять на три - это пять плюс пять плюс пять.
-А степень - это просто умножение одинаковых чисел.
+Так вот степень - это просто умножение одинаковых чисел.
 Пять во второй это пять умножить на пять.
 Пять в третьей это пять на пять на пять.
 И так
 далее.
 Сможешь найти десять во второй?
 А в третьей?
-А в четвертой?
-Общая тенденция ясна.`
+В четвертой?
+В какую степень надо возвести десять, чтобы получить миллион?`
 
 func myRead(text string) [][]string {
 	r := csv.NewReader(strings.NewReader(text))
@@ -73,7 +65,10 @@ func InitPow(x1, y1, x2, y2 float32) *Power {
 
 	p.Lecture.ExInit(myRead(ex0), myRead(ex1), myRead(ex2), myRead(ex3))
 	p.Lecture.ScriptInit(strings.Split(t1, "\n"))
+	//p.Lecture.Play()
 
+	//p.tracks = tracks.Init()
+	//p.tracks.Play()
 	return p
 }
 
@@ -82,6 +77,7 @@ func (p *Power) Draw(scr *ebiten.Image) {
 }
 
 func (p *Power) Update() {
+	//p.tracks.Update()
 	p.Lecture.Update()
 }
 

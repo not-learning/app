@@ -4,6 +4,8 @@ import (
 	c "github.com/not-learning/app/clrs"
 	f "github.com/not-learning/app/fonts"
 	"github.com/not-learning/app/nump"
+	"github.com/not-learning/app/tracks"
+
 	"log"
 	"strconv"
 
@@ -21,6 +23,8 @@ type Lecture struct {
 	screen  []*l.Lmnt
 	scrStr  []string
 
+	play bool
+
 	exercises [][]exercise
 	curEx     int
 	curExL    int
@@ -33,6 +37,7 @@ type Lecture struct {
 
 	nump *nump.NumP
 	font *f.Font
+	tracks *tracks.Tracks
 }
 
 type exercise struct {
@@ -81,6 +86,9 @@ func Init(x1, y1, x2, y2 float32) *Lecture {
 
 	lc.font = f.InitFont()
 
+	lc.tracks = tracks.Init()
+	//lc.tracks.Play()
+
 	return lc
 }
 
@@ -94,7 +102,7 @@ func (lc *Lecture) doEx(txt [][]string) {
 		ans, problem := 0, false
 		if v[1] > "" {
 			a, e := strconv.Atoi(v[1])
-			if e != nil {log.Println("doEx:", e)}
+			if e != nil {log.Println("doEx: ", e)}
 			ans, problem = a, true
 		}
 
@@ -169,6 +177,13 @@ func (lc *Lecture) nextEx() bool {
 	return true
 }
 
+func (lc *Lecture) next() bool {
+	if lc.tracks.IsPlaying() { return false }
+	lc.nextScript()
+	lc.nextEx()
+	return true
+}
+
 func (lc *Lecture) input() bool {
 	if !lc.exercises[lc.curExL][lc.curEx].problem { return true }
 	str := "?"
@@ -189,13 +204,13 @@ func (lc *Lecture) seqFunInit() {
 		//lc.unfade,
 		lc.input,
 		//lc.fade,
-		lc.nextScript,
-		lc.nextEx,
+		lc.next,
 	}
 }
 
 func (lc *Lecture) Update() {
 	lc.nump.Update()
+	lc.tracks.Next()
 	if lc.funlist[lc.curFun]() { lc.curFun++ }
 	if lc.curFun >= len(lc.funlist) { lc.curFun = 0 }
 }
@@ -216,6 +231,11 @@ func (lc *Lecture) Draw(scr *ebiten.Image) {
 		lc.font.Draw(scr, lc.scrStr[i], x, y)
 	}
 }
+
+//func (lc *Lecture) IsPlaying() bool { return t.tracks[t.curTrack].IsPlaying() }
+/*func (lc *Lecture) Play()  { lc.play = true }
+func (lc *Lecture) Stop()  { lc.play = false }
+func (lc *Lecture) Pause() { lc.play = !lc.play }//*/
 
 //font.Metrics()
 //font.Advance()

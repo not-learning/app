@@ -10,6 +10,7 @@ import (
 )
 
 // TODO: have lists prepared for drawing
+// TODO: deal with myClr
 
 func Draw(scr *ebiten.Image, lls ...*l.Lmnt) {
 	i := 0

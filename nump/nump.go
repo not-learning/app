@@ -110,3 +110,9 @@ func (n *NumP) Check(ans int) bool {
 	if *n.xact.bool { return ans == *n.xact.int }
 	return false
 }
+
+func (n *NumP) IsPlaying() bool { return *n.xact.play }
+
+func (n *NumP) Play()  { *n.xact.play = true }
+func (n *NumP) Stop()  { *n.xact.play = false }
+func (n *NumP) Pause() { *n.xact.play = !*n.xact.play }

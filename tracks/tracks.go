@@ -1,0 +1,65 @@
+package tracks
+
+import (
+	"bytes"
+	"log"
+	"embed"
+	"strconv"
+
+	//"github.com/hajimehoshi/ebiten"
+	//"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
+)
+
+const sr = 48000
+const nf = 11
+
+//go:embed pow
+var files embed.FS
+
+type Tracks struct {
+	context *audio.Context
+	//player  *audio.Player
+
+	tracks    []*audio.Player
+	curTrack int
+	play     bool
+}
+
+func Init() *Tracks {
+	t := &Tracks{}
+	t.context = audio.NewContext(sr)
+	t.initTracks()
+	return t
+}
+
+func (t *Tracks) initTracks() {
+	t.tracks = make([]*audio.Player, nf)
+	for i := range nf {
+		ss := strconv.Itoa(i+1)
+		if i < 9 { ss = "0" + ss }
+
+		f, err := files.ReadFile("pow/"+ss+".ogg")
+		if err != nil { log.Fatal("Audio.Init() ReadFile: ", err) }
+		d, err := vorbis.DecodeF32(bytes.NewReader(f))
+		if err != nil { log.Fatal("Audio.Init() vorbis.DecodeF32: ", err) }
+
+		t.tracks[i], err = t.context.NewPlayerF32(d)
+		if err != nil { log.Fatal("Audio.Init() NewPlayerF32: ", err) }
+	}
+}
+
+func (t *Tracks) nextTrack() {
+	if t.curTrack < len(t.tracks)-1 { t.curTrack++ }
+}
+
+func (t *Tracks) Next() {
+	if !t.tracks[t.curTrack].IsPlaying() { t.tracks[t.curTrack].Play() }
+	if !t.tracks[t.curTrack].IsPlaying() { t.nextTrack() }
+}
+
+func (t *Tracks) IsPlaying() bool { return t.tracks[t.curTrack].IsPlaying() }
+/*func (t *Tracks) Play()  { t.play = true }
+func (t *Tracks) Stop()  { t.play = false }
+func (t *Tracks) Pause() { t.play = !t.play }//*/
