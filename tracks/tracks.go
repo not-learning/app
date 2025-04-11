@@ -18,13 +18,17 @@ const nf = 11
 //go:embed pow
 var files embed.FS
 
+//go:embed answers
+var ansFiles embed.FS
+
 type Tracks struct {
 	context *audio.Context
 	//player  *audio.Player
+	correct *audio.Player
+	wrong   *audio.Player
 
-	tracks    []*audio.Player
+	tracks   []*audio.Player
 	curTrack int
-	play     bool
 }
 
 func Init() *Tracks {
@@ -47,6 +51,37 @@ func (t *Tracks) initTracks() {
 
 		t.tracks[i], err = t.context.NewPlayerF32(d)
 		if err != nil { log.Fatal("Audio.Init() NewPlayerF32: ", err) }
+
+	}
+
+	f, err := ansFiles.ReadFile("answers/correct/1.ogg")
+	if err != nil { log.Fatal("Audio.Init() ReadFile: ", err) }
+	d, err := vorbis.DecodeF32(bytes.NewReader(f))
+	if err != nil { log.Fatal("Audio.Init() vorbis.DecodeF32: ", err) }
+
+	t.correct, err = t.context.NewPlayerF32(d)
+	if err != nil { log.Fatal("Audio.Init() NewPlayerF32: ", err) }
+
+	f, err = ansFiles.ReadFile("answers/wrong/1.ogg")
+	if err != nil { log.Fatal("Audio.Init() ReadFile: ", err) }
+	d, err = vorbis.DecodeF32(bytes.NewReader(f))
+	if err != nil { log.Fatal("Audio.Init() vorbis.DecodeF32: ", err) }
+
+	t.wrong, err = t.context.NewPlayerF32(d)
+	if err != nil { log.Fatal("Audio.Init() NewPlayerF32: ", err) }
+}
+
+func (t *Tracks) PlayCorrect() {
+	if !t.IsPlaying() {
+		t.correct.Rewind()
+		t.correct.Play()
+	}
+}
+
+func (t *Tracks) PlayWrong() {
+	if !t.IsPlaying() {
+		t.wrong.Rewind()
+		t.wrong.Play()
 	}
 }
 
@@ -55,11 +90,16 @@ func (t *Tracks) nextTrack() {
 }
 
 func (t *Tracks) Next() {
-	if !t.tracks[t.curTrack].IsPlaying() { t.tracks[t.curTrack].Play() }
-	if !t.tracks[t.curTrack].IsPlaying() { t.nextTrack() }
+	if !t.IsPlaying() { t.tracks[t.curTrack].Play() }
+	if !t.IsPlaying() {
+		t.nextTrack()
+		t.tracks[t.curTrack].Play()
+	}
 }
 
-func (t *Tracks) IsPlaying() bool { return t.tracks[t.curTrack].IsPlaying() }
-/*func (t *Tracks) Play()  { t.play = true }
-func (t *Tracks) Stop()  { t.play = false }
-func (t *Tracks) Pause() { t.play = !t.play }//*/
+func (t *Tracks) IsPlaying() bool {
+	current := t.tracks[t.curTrack].IsPlaying()
+	correct := t.correct.IsPlaying()
+	wrong := t.wrong.IsPlaying()
+	return current || correct || wrong
+}

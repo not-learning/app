@@ -106,13 +106,19 @@ func (n *NumP) Num() int { return *n.xact.int }
 func (n *NumP) Str() string { return strconv.Itoa(*n.xact.int) }
 func (n *NumP) NumClear() { *n.xact.int = 0 }
 
-func (n *NumP) Check(ans int) bool {
-	if *n.xact.bool { return ans == *n.xact.int }
-	return false
+func (n *NumP) Check(ans int, correct, wrong func()) bool {
+	if !*n.xact.confirm { return false }
+	if ans == *n.xact.int {
+		correct()
+		return true
+	} else {
+		wrong()
+		return false
+	}
 }
 
 func (n *NumP) IsPlaying() bool { return *n.xact.play }
 
 func (n *NumP) Play()  { *n.xact.play = true }
 func (n *NumP) Stop()  { *n.xact.play = false }
-func (n *NumP) Pause() { *n.xact.play = !*n.xact.play }
+func (n *NumP) Pause() { *n.xact.play = !*n.xact.play }//*/

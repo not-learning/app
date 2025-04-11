@@ -16,7 +16,7 @@ type xAct struct {
 	play *bool
 
 	*int
-	*bool
+	confirm *bool
 }
 
 type pos struct{ x1, y1, x2, y2 float64 }
@@ -34,7 +34,7 @@ const ( // todo: make it a list maybe?
 	actionInsert9
 	actionBackspace
 	actionEnter
-	actionPlay
+	actionPause
 
 	actionClick
 
@@ -54,7 +54,7 @@ var keymap = input.Keymap{
 	actionInsert9:   {input.Key9, input.KeyNum9},
 	actionBackspace: {input.KeyBackspace},
 
-	actionPlay: {input.KeySpace},
+	actionPause: {input.KeySpace},
 
 	actionClick: {input.KeyMouseLeft},
 	actionEnter: {input.KeyEnter, input.KeyNumEnter},
@@ -101,9 +101,9 @@ func (x *xAct) update() {
 			}
 	}
 
-	*x.bool = x.inHand.ActionIsPressed(actionEnter) || x.clickInside(x.btnCheck)
+	*x.confirm = x.inHand.ActionIsJustPressed(actionEnter) || x.clickInside(x.btnCheck)
 
-	*x.play = x.inHand.ActionIsJustPressed(actionPlay)
+	if x.inHand.ActionIsJustPressed(actionPause) { *x.play = !*x.play }
 
 	if x.clickInside(x.btnErase) { *x.int /= 10 }
 	if x.keyRepeat(actionBackspace) { *x.int /= 10 }
@@ -119,8 +119,10 @@ func initXact() *xAct {
 	i := 0
 	x.int = &i
 	b := false
-	x.bool = &b
+	x.confirm = &b
 	p := false
 	x.play = &p
 	return x
 }
+
+func (x *xAct) isPlaying() bool { return *x.play }

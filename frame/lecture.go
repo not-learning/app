@@ -31,9 +31,14 @@ type Lecture struct {
 	funlist   []func() bool
 	curFun    int
 
-	script    []string
-	curScript int
-	subtitle *l.Lmnt
+	script     [][]string
+	curScript  int
+	subL       *l.Lmnt
+	subContent *l.Lmnt
+	subCards   []*l.Lmnt
+	subtitles  [][]*l.Lmnt
+
+	btns []*l.Lmnt
 
 	nump *nump.NumP
 	font *f.Font
@@ -64,20 +69,36 @@ func Init(x1, y1, x2, y2 float32) *Lecture {
 
 	lc.upper.DoAll()
 
-	lower := l.New()
-	lower.SetRect(x1, x2, x2, y2)
+	lc.subL = l.New()
+	lc.subL.SetRect(x1, x2, x2, y2)
 
 	sub := l.New()
 	sub.SetRow()
-	lower.Add(sub)
+	//sub.SetSize(0, 17)
+	lc.subL.Add(sub)
 	padSub := l.New()
-	lc.subtitle = l.New()
 	padSub.SetSize(20, 0)
-	sub.Add(padSub, lc.subtitle)
-	//w, h := lc.subtitles[i].TextSize(s) //TODO: wrap
-	lc.subtitle.SetSize(0, 17)
+	lc.subContent = l.New()
+	sub.Add(padSub, lc.subContent)
 
-	lower.DoAll()
+	btnRow := l.New()
+	btnRow.SetRow()
+	lc.btns = make([]*l.Lmnt, 3)
+	for i := range 3 {
+		lc.btns[i] = l.New()
+		lc.btns[i].SetSize(150, 75)
+	}
+	lc.btns[1].SetSize(75, 75)
+	btnRow.GapsAround(0, lc.btns...)
+	btnMargin := l.New()
+	btnMargin.SetSize(0, 20)
+	lc.subL.Add(btnMargin, btnRow)
+
+	//lc.subtitle.SetSize(0, 17)
+
+	lc.subL.DoAll()
+
+	
 
 	lc.luma = 255
 
@@ -87,13 +108,33 @@ func Init(x1, y1, x2, y2 float32) *Lecture {
 	lc.font = f.InitFont()
 
 	lc.tracks = tracks.Init()
-	//lc.tracks.Play()
+
+	lc.nump.Play()
 
 	return lc
 }
 
 func (lc *Lecture) ScriptInit(script []string) {
-	lc.script = script
+	var res = [][]string{}
+
+	lc.font.Set(15, c.YCC(lc.luma, 128, 128))
+	x1, _, x2, _ := lc.subContent.Rect()
+	w := x2 - x1
+	for i, v := range script {
+		res = append(res, []string{})
+		lc.subCards = append(lc.subCards, l.New())
+		lc.subtitles = append(lc.subtitles, []*l.Lmnt{})
+		for j, w := range lc.font.Wrap(v, float64(w)) {
+			lc.subtitles[i] = append(lc.subtitles[i], l.New())
+			lc.subtitles[i][j].SetSize(0, 17)
+			res[i] = append(res[i], w...)
+		}
+		lc.subCards[i].GapsBetween(5, lc.subtitles[i]...)
+	}
+	lc.subContent.GapsBetween(15, lc.subCards...)
+
+	lc.subL.DoAll()
+	lc.script = res
 }
 
 func (lc *Lecture) doEx(txt [][]string) {
@@ -173,15 +214,32 @@ func (lc *Lecture) nextEx() bool {
 		lc.addScreen()
 		lc.appendScrStr()
 	}
-
 	return true
 }
 
 func (lc *Lecture) next() bool {
-	if lc.tracks.IsPlaying() { return false }
+	if lc.tracks.IsPlaying() || !lc.nump.IsPlaying() { return false }
+	lc.tracks.Next()
 	lc.nextScript()
 	lc.nextEx()
 	return true
+}
+
+func (lc *Lecture) playStr() string {
+	if lc.nump.IsPlaying() {
+		return "▮▮"
+	} else {
+		return "▶"
+	}
+}
+//▮▮▶▯▯▷
+
+func (lc *Lecture) correct() {
+	lc.tracks.PlayCorrect()
+}
+
+func (lc *Lecture) wrong() {
+	lc.tracks.PlayWrong()
 }
 
 func (lc *Lecture) input() bool {
@@ -190,8 +248,11 @@ func (lc *Lecture) input() bool {
 	if lc.nump.Num() != 0 { str = lc.nump.Str() }
 	lc.scrStr[len(lc.scrStr)-1] = lc.exercises[lc.curExL][lc.curEx].text + str
 
-	if lc.nump.Check(lc.exercises[lc.curExL][lc.curEx].ans) { return true }
-	return false
+	return lc.nump.Check(
+		lc.exercises[lc.curExL][lc.curEx].ans,
+		lc.correct,
+		lc.wrong,
+	)
 }
 
 func (lc *Lecture) end() bool {
@@ -210,32 +271,47 @@ func (lc *Lecture) seqFunInit() {
 
 func (lc *Lecture) Update() {
 	lc.nump.Update()
-	lc.tracks.Next()
 	if lc.funlist[lc.curFun]() { lc.curFun++ }
 	if lc.curFun >= len(lc.funlist) { lc.curFun = 0 }
 }
 
 func (lc *Lecture) Draw(scr *ebiten.Image) {
-	//lc.upper.WalkUp(l.TestDraw(scr))
+	//.WalkUp(l.TestDraw(scr))
 	if lc.exercises[lc.curExL][lc.curEx].problem { lc.nump.Draw(scr) }
 
-	x, y, _, _ := lc.subtitle.Rect()
-	lc.font.Set(15, c.YCC(lc.luma, 128, 128))
-	lc.font.Draw(scr, lc.script[lc.curScript], x, y)
+//lc.subL.WalkUp(l.TestDraw(scr))
+	for i, v := range lc.subtitles {
+	//l.Draw(scr, lc.subCards[i])
+		for j, w := range v {
+			x, y, _, _ := w.Rect()
+			lc.font.Set(15, c.YCC(lc.luma, 128, 128))
+			lc.font.Draw(scr, lc.script[i][j], x, y)
+		}
+	}//*/
 
 	for i := range lc.screen {
 		//l.Draw(scr, lc.screen[i])
-		
 		x, y, _, _ := lc.screen[i].Rect()
 		lc.font.Set(50, c.YCC(lc.luma, 128, 128))
 		lc.font.Draw(scr, lc.scrStr[i], x, y)
 	}
-}
 
-//func (lc *Lecture) IsPlaying() bool { return t.tracks[t.curTrack].IsPlaying() }
-/*func (lc *Lecture) Play()  { lc.play = true }
-func (lc *Lecture) Stop()  { lc.play = false }
-func (lc *Lecture) Pause() { lc.play = !lc.play }//*/
+	lc.font.Set(70, c.YCC(lc.luma, 128, 128))
+	x, y := lc.btns[0].MidF32()
+	lc.font.DrawCenter(scr, "◄", x, y-7) //TODO: center properly
+	lc.font.Set(50, c.YCC(lc.luma, 128, 128))
+	x, y = lc.btns[1].MidF32()
+	lc.font.DrawCenter(scr, lc.playStr(), x, y-5) //TODO: center properly
+	lc.font.Set(70, c.YCC(lc.luma, 128, 128))
+	x, y = lc.btns[2].MidF32()
+	lc.font.DrawCenter(scr, "►", x, y-7) //TODO: center properly
+}
+//☞☜☛☚
+//◄► ◅▻
+
+func (lc *Lecture) Play()  { lc.nump.Play() }
+func (lc *Lecture) Stop()  { lc.nump.Stop() }
+func (lc *Lecture) Pause() { lc.nump.Pause() }//*/
 
 //font.Metrics()
 //font.Advance()

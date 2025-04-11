@@ -52,21 +52,24 @@ func (f *Font) TextSize(str string) (w, h float64) {
 	return
 }
 
-func (f *Font) sl(str string) float64 {
+func (f *Font) strLen(str string) float64 {
 	return text.Advance(str, f.face)
 }
 
-func (f *Font) Wrap(str string, width float64) string {
+func (f *Font) Wrap(str string, width float64) [][]string {
 	words := strings.Fields(str)
-	res := words[0]
-	rem := width - f.sl(res)
+	if str == "" { return [][]string{[]string{str}} }
+	res := [][]string{[]string{words[0]}}
+	rem := width - f.strLen(res[0][0])
+	i := 0
 	for _, w := range words[1:] {
-		if f.sl(w + "\n") > rem { //todo: test without "\n"
-			res += "\n" + w
-			rem = width - f.sl(w)
+		if f.strLen(w) > rem {
+			res = append(res, []string{w})
+			i++
+			rem = width - f.strLen(w)
 		} else {
-			res += " " + w
-			rem = width - f.sl(" " + w)
+			res[i][0] += " " + w
+			rem = rem - f.strLen(" " + w)
 		}
 	}
 	return res
