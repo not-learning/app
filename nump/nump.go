@@ -3,6 +3,7 @@ package nump
 import (
 	c "github.com/not-learning/app/clrs"
 	f "github.com/not-learning/app/fonts"
+	d "github.com/not-learning/app/draw"
 	"strconv"
 
 	l "github.com/not-learning/lmnts"
@@ -83,8 +84,8 @@ func (n *NumP) Update() {
 
 func (n *NumP) Draw(scr *ebiten.Image) {
 	//n.top.WalkUp(myDraw(scr))
-	l.Draw(scr, n.npBtns...)
-	l.Draw(scr, n.eraseBtn, n.checkBtn)
+	d.Draw(scr, n.npBtns...)
+	d.Draw(scr, n.eraseBtn, n.checkBtn)
 
 	var x, y float32
 	for i, k := range n.npBtns {
@@ -103,7 +104,18 @@ func (n *NumP) Draw(scr *ebiten.Image) {
 }
 
 func (n *NumP) Num() int { return *n.xact.int }
-func (n *NumP) Str() string { return strconv.Itoa(*n.xact.int) }
+
+func (n *NumP) Str() string {
+	a := strconv.Itoa(*n.xact.int)
+	for i := 0; i < len(a); i++ {
+		l := len(a) - i
+		if i%4 == 0 {
+			a = a[:l] + " " + a[l:]
+		}
+	}//*/
+	return a[:len(a)-1]
+}
+
 func (n *NumP) NumClear() { *n.xact.int = 0 }
 
 func (n *NumP) Check(ans int, correct, wrong func()) bool {

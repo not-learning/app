@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"log"
 	"embed"
-	"strconv"
+	"path"
+	//"strconv"
 
 	//"github.com/hajimehoshi/ebiten"
 	//"github.com/hajimehoshi/ebiten/inpututil"
@@ -13,10 +14,10 @@ import (
 )
 
 const sr = 48000
-const nf = 11
 
 //go:embed pow
 var files embed.FS
+//var fnames []string
 
 //go:embed answers
 var ansFiles embed.FS
@@ -38,21 +39,26 @@ func Init() *Tracks {
 	return t
 }
 
-func (t *Tracks) initTracks() {
-	t.tracks = make([]*audio.Player, nf)
-	for i := range nf {
-		ss := strconv.Itoa(i+1)
-		if i < 9 { ss = "0" + ss }
+func (t *Tracks) initFiles(dir string) {
+	fnames, err := files.ReadDir(dir)
+	if err != nil { log.Fatal("initTracks: ", err) }
+	t.tracks = []*audio.Player{}
 
-		f, err := files.ReadFile("pow/"+ss+".ogg")
+	for _, v := range fnames {
+		f, err := files.ReadFile(path.Join(dir, v.Name()))
 		if err != nil { log.Fatal("Audio.Init() ReadFile: ", err) }
+
 		d, err := vorbis.DecodeF32(bytes.NewReader(f))
 		if err != nil { log.Fatal("Audio.Init() vorbis.DecodeF32: ", err) }
 
-		t.tracks[i], err = t.context.NewPlayerF32(d)
+		tr, err := t.context.NewPlayerF32(d)
 		if err != nil { log.Fatal("Audio.Init() NewPlayerF32: ", err) }
-
+		t.tracks = append(t.tracks, tr)
 	}
+}
+
+func (t *Tracks) initTracks() {
+	t.initFiles("pow")
 
 	f, err := ansFiles.ReadFile("answers/correct/1.ogg")
 	if err != nil { log.Fatal("Audio.Init() ReadFile: ", err) }
@@ -87,6 +93,10 @@ func (t *Tracks) PlayWrong() {
 
 func (t *Tracks) nextTrack() {
 	if t.curTrack < len(t.tracks)-1 { t.curTrack++ }
+}
+
+func (t *Tracks) prevTrack() {
+	if t.curTrack > 0 { t.curTrack-- }
 }
 
 func (t *Tracks) Next() {

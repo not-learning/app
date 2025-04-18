@@ -3,9 +3,8 @@ package main
 import (
 	"log"
 	"math"
-	//"github.com/not-learning/app/tracks"
+	"image/color"
 	"github.com/not-learning/app/lectures/maths"
-	//f "github.com/not-learning/app/fonts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -15,21 +14,23 @@ import (
 
 //const scrW, scrH = 900, 2000
 const scrW, scrH = 450, 1000
+//const scrW, scrH = 270, 600
 
 type game struct {
-	pow *maths.Power
-	//tracks *tracks.Tracks
-	//Font *f.Font
+	//pow *maths.Power
+	trig *maths.Trig
 }
 
 func (g *game) Update() error {
-	g.pow.Update()
-	//g.tracks.Update()
+	//g.pow.Update()
 	return nil
 }
 
 func (g *game) Draw(scr *ebiten.Image) {
-	g.pow.Draw(scr)
+	s := scr
+	s.Fill(color.RGBA{20, 20, 20, 255})
+	//g.pow.Draw(scr)
+	g.trig.Draw(scr)
 }
 
 func (g *game) Layout(outW, outH int) (int, int) {
@@ -41,16 +42,15 @@ func (g *game) Layout(outW, outH int) (int, int) {
 
 func initGame() *game {
 	g := &game{}
-	g.pow = maths.InitPow(0, 0, scrW, scrH)
-	//g.tracks = tracks.Init()
-	//g.Font = f.InitFont()
+	//g.pow = maths.InitPow(0, 0, scrW, scrH)
+	g.trig = maths.InitTrig()
 	return g
 }
 
 func main() {
 	g := initGame()
 	ebiten.SetWindowSize(scrW, scrH)
-	ebiten.SetWindowDecorated(false)
+	//ebiten.SetWindowDecorated(false)
 	if e := ebiten.RunGame(g); e != nil {
 		log.Fatal(e)
 	}

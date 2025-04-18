@@ -81,6 +81,7 @@ func (x *xAct) clickInside(p *pos) bool {
 	return false
 }
 
+// TODO something about overflow
 func (x *xAct) update() {
 	x.inSys.Update()
 

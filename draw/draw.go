@@ -2,6 +2,7 @@ package draw
 
 import (
 	l "github.com/not-learning/lmnts"
+	v "github.com/not-learning/app/vec"
 	"image/color"
 	"math"
 
@@ -11,6 +12,77 @@ import (
 
 // TODO: have lists prepared for drawing
 // TODO: deal with myClr
+
+type Img struct { // todo a better name
+	vertices []ebiten.Vertex
+	indices  []uint16
+	tr       *ebiten.Image
+}
+
+func Init() *Img {
+	img := &Img{}
+	img.tr = ebiten.NewImage(2, 2)
+	img.tr.Fill(color.RGBA{1, 1, 1, 1})
+	return img
+}
+
+func (img *Img) Arc(scr *ebiten.Image, x, y, r, φ1, φ2 float32, clr color.Color) {
+	var path vector.Path
+	path.Arc(x, y, r, φ1, -φ2, vector.CounterClockwise)
+
+	op := &vector.StrokeOptions{}
+	op.Width = 1.5
+	img.vertices, img.indices = path.AppendVerticesAndIndicesForStroke(img.vertices[:0], img.indices[:0], op)
+
+	red, green, blue, _ := clr.RGBA()
+	for i := range img.vertices {
+		img.vertices[i].SrcX = 1
+		img.vertices[i].SrcY = 1
+		img.vertices[i].ColorR = float32(red)
+		img.vertices[i].ColorG = float32(green)
+		img.vertices[i].ColorB = float32(blue)
+		img.vertices[i].ColorA = 1
+	}
+
+	trop := &ebiten.DrawTrianglesOptions{}
+	trop.AntiAlias = true
+	trop.FillRule = ebiten.FillRuleNonZero
+
+	scr.DrawTriangles(img.vertices, img.indices, img.tr, trop)
+}
+
+func (img *Img) Poly(scr *ebiten.Image, crds []*v.VecF32, clr color.Color) {
+	var path vector.Path
+	for i, v := range crds {
+		if i == 0 {
+			path.MoveTo(v.X, v.Y)
+			continue
+		}
+		path.LineTo(v.X, v.Y)
+	}
+
+	op := &vector.StrokeOptions{}
+	op.Width = 1.5
+	img.vertices, img.indices = path.AppendVerticesAndIndicesForStroke(img.vertices[:0], img.indices[:0], op)
+
+	red, green, blue, _ := clr.RGBA()
+	for i := range img.vertices {
+		/*img.vertices[i].DstX += v.X
+		img.vertices[i].DstY += v.Y//*/
+		img.vertices[i].SrcX = 1
+		img.vertices[i].SrcY = 1
+		img.vertices[i].ColorR = float32(red)
+		img.vertices[i].ColorG = float32(green)
+		img.vertices[i].ColorB = float32(blue)
+		img.vertices[i].ColorA = 1
+	}
+
+	trop := &ebiten.DrawTrianglesOptions{}
+	trop.AntiAlias = true
+	trop.FillRule = ebiten.FillRuleNonZero
+
+	scr.DrawTriangles(img.vertices, img.indices, img.tr, trop)
+}
 
 func Draw(scr *ebiten.Image, lls ...*l.Lmnt) {
 	i := 0
@@ -40,4 +112,4 @@ func TestDraw(scr *ebiten.Image) func(*l.Lmnt) {
 func myClr(x, y uint8) color.Color {
 	r, g, b := color.YCbCrToRGB(255, x, y)
 	return color.RGBA{r, g, b, 255}
-}
+}//*/

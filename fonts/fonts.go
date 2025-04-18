@@ -75,6 +75,10 @@ func (f *Font) Wrap(str string, width float64) [][]string {
 	return res
 }
 
+/*func (f *Font) Super(str, super string) {
+	w, h := f.TextSize(str)
+}//*/
+
 func (f *Font) Draw(scr *ebiten.Image, str string, x, y float32) {
 	f.op.GeoM.Translate(float64(x), float64(y))
 	text.Draw(scr, str, f.face, f.op)
