@@ -43,7 +43,7 @@ func (g *game) Layout(outW, outH int) (int, int) {
 func initGame() *game {
 	g := &game{}
 	//g.pow = maths.InitPow(0, 0, scrW, scrH)
-	g.trig = maths.InitTrig()
+	g.trig = maths.InitTrig(0, 0, scrW, scrH)
 	return g
 }
 

@@ -17,18 +17,25 @@ type Img struct { // todo a better name
 	vertices []ebiten.Vertex
 	indices  []uint16
 	tr       *ebiten.Image
+	x0, y0 float32
+	//w, h float32
 }
 
-func Init() *Img {
+func Init(x1, y1, x2, y2 float32) *Img {
 	img := &Img{}
 	img.tr = ebiten.NewImage(2, 2)
 	img.tr.Fill(color.RGBA{1, 1, 1, 1})
+	w, h := x2-x1, y2-y1
+	img.x0 = x1 + w/2
+	img.y0 = y1 + h/2
+	/*img.w = x2
+	img.h = y2//*/
 	return img
 }
 
 func (img *Img) Arc(scr *ebiten.Image, x, y, r, φ1, φ2 float32, clr color.Color) {
 	var path vector.Path
-	path.Arc(x, y, r, φ1, -φ2, vector.CounterClockwise)
+	path.Arc(x+img.x0, -y+img.y0, r, -φ1, -φ2, vector.CounterClockwise)
 
 	op := &vector.StrokeOptions{}
 	op.Width = 1.5

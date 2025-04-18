@@ -26,9 +26,9 @@ type Lect struct {
 	*draw.Img
 }
 
-func Init() *Lect {
+func Init(x1, y1, x2, y2 float32) *Lect {
 	l := &Lect{}
-	l.Img = draw.Init()
+	l.Img = draw.Init(x1, y1, x2, y2)
 	return l
 }//*/
 
