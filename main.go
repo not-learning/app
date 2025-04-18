@@ -23,6 +23,7 @@ type game struct {
 
 func (g *game) Update() error {
 	//g.pow.Update()
+	g.trig.Update()
 	return nil
 }
 

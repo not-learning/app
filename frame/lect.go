@@ -36,16 +36,20 @@ func (l *Lect) AddShape(fn func(*ebiten.Image)) {
 	l.shapes = append(l.shapes, fn)
 }
 
+func (l *Lect) AddAnim(fn func()) {
+	l.anims = append(l.anims, fn)
+}
+
 func (l *Lect) Next() {
 	if l.lects.n < len(l.lects.subs)-1 { l.lects.n++ }
 	if l.ex.n < len(l.ex.texts)-1 { l.ex.n++ }
 	l.tracks.Next()
 }
 
-func run(screen *ebiten.Image, fn func(*ebiten.Image)) {
-	if fn != nil { fn(screen) }
+func (l *Lect) Draw(screen *ebiten.Image) {
+	l.shapes[l.ex.n](screen)
 }
 
-func (l *Lect) Draw(screen *ebiten.Image) {
-	run(screen, l.shapes[l.ex.n])
+func (l *Lect) Update() {
+	l.anims[l.ex.n]()
 }
