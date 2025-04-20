@@ -1,9 +1,9 @@
 package nump
 
 import (
-	c "github.com/not-learning/app/clrs"
-	f "github.com/not-learning/app/fonts"
-	d "github.com/not-learning/app/draw"
+	"github.com/not-learning/app/clrs"
+	"github.com/not-learning/app/fonts"
+	"github.com/not-learning/app/draw"
 	"strconv"
 
 	l "github.com/not-learning/lmnts"
@@ -17,7 +17,7 @@ type NumP struct {
 	checkBtn *l.Lmnt
 
 	xact *xAct
-	font *f.Font
+	font *fonts.Font
 }
 
 func Init(x1, y1, x2, y2 float32) *NumP {
@@ -73,7 +73,7 @@ func Init(x1, y1, x2, y2 float32) *NumP {
 	x1, y1, x2, y2 = n.checkBtn.Rect()
 	n.xact.btnCheck = &pos{float64(x1), float64(y1), float64(x2), float64(y2)}
 
-	n.font = f.InitFont()
+	n.font = fonts.InitFont()
 
 	return n
 }
@@ -84,22 +84,22 @@ func (n *NumP) Update() {
 
 func (n *NumP) Draw(scr *ebiten.Image) {
 	//n.top.WalkUp(myDraw(scr))
-	d.Draw(scr, n.npBtns...)
-	d.Draw(scr, n.eraseBtn, n.checkBtn)
+	draw.Draw(scr, n.npBtns...)
+	draw.Draw(scr, n.eraseBtn, n.checkBtn)
 
 	var x, y float32
 	for i, k := range n.npBtns {
 		x, y = k.MidF32()
-		n.font.Set(50, c.White)
+		n.font.Set(50, clrs.White)
 		n.font.DrawCenter(scr, strconv.Itoa(i), x, y)
 	}
 
 	x, y = n.eraseBtn.MidF32()
-	n.font.Set(33, c.White)
+	n.font.Set(33, clrs.White)
 	n.font.DrawCenter(scr, "⌫", x, y)
 
 	x, y = n.checkBtn.MidF32()
-	n.font.Set(75, c.Green)
+	n.font.Set(75, clrs.Green)
 	n.font.DrawCenter(scr, "✓", x, y)
 }
 

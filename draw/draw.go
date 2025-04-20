@@ -1,8 +1,8 @@
 package draw
 
 import (
-	l "github.com/not-learning/lmnts"
-	v "github.com/not-learning/app/vec"
+	"github.com/not-learning/lmnts"
+	"github.com/not-learning/app/vec"
 	"image/color"
 	"math"
 
@@ -57,7 +57,7 @@ func (img *Img) Arc(scr *ebiten.Image, x, y, r, φ1, φ2 float32, clr color.Colo
 	scr.DrawTriangles(img.vertices, img.indices, img.tr, trop)
 }
 
-func (img *Img) Poly(scr *ebiten.Image, crds []*v.VecF32, clr color.Color) {
+func (img *Img) Poly(scr *ebiten.Image, crds []*vec.VecF32, clr color.Color) {
 	var path vector.Path
 	for i, v := range crds {
 		if i == 0 {
@@ -77,9 +77,9 @@ func (img *Img) Poly(scr *ebiten.Image, crds []*v.VecF32, clr color.Color) {
 		img.vertices[i].DstY += v.Y//*/
 		img.vertices[i].SrcX = 1
 		img.vertices[i].SrcY = 1
-		img.vertices[i].ColorR = float32(red)
-		img.vertices[i].ColorG = float32(green)
-		img.vertices[i].ColorB = float32(blue)
+		img.vertices[i].ColorR = float32(red / 256)
+		img.vertices[i].ColorG = float32(green / 256)
+		img.vertices[i].ColorB = float32(blue / 256)
 		img.vertices[i].ColorA = 1
 	}
 
@@ -90,7 +90,7 @@ func (img *Img) Poly(scr *ebiten.Image, crds []*v.VecF32, clr color.Color) {
 	scr.DrawTriangles(img.vertices, img.indices, img.tr, trop)
 }
 
-func Draw(scr *ebiten.Image, lls ...*l.Lmnt) {
+func Draw(scr *ebiten.Image, lls ...*lmnts.Lmnt) {
 	i := 0
 	for _, k := range lls {
 		i++
@@ -102,9 +102,9 @@ func Draw(scr *ebiten.Image, lls ...*l.Lmnt) {
 	}
 }
 
-func TestDraw(scr *ebiten.Image) func(*l.Lmnt) {
+func TestDraw(scr *ebiten.Image) func(*lmnts.Lmnt) {
 	i := 0
-	return func(el *l.Lmnt) {
+	return func(el *lmnts.Lmnt) {
 		i++
 		n := float64(i) / 22.0
 		j := 2 * math.Pi
