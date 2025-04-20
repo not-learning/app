@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// TODO image.Bounds() and friends TODO
 // TODO relative sizes
 // TODO: have lists prepared for drawing
 

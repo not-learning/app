@@ -24,7 +24,7 @@ type Img struct { // todo a better name
 func Init(x1, y1, x2, y2 float32) *Img {
 	img := &Img{}
 	img.tr = ebiten.NewImage(2, 2)
-	img.tr.Fill(color.RGBA{1, 1, 1, 1})
+	img.tr.Fill(color.RGBA{127, 127, 127, 127})
 	w, h := x2-x1, y2-y1
 	img.x0 = x1 + w/2
 	img.y0 = y1 + h/2
