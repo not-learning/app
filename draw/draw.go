@@ -24,7 +24,7 @@ type Img struct { // todo a better name
 func Init(x1, y1, x2, y2 float32) *Img {
 	img := &Img{}
 	img.tr = ebiten.NewImage(2, 2)
-	img.tr.Fill(color.RGBA{127, 127, 127, 127})
+	img.tr.Fill(color.RGBA{1, 1, 1, 1})
 	w, h := x2-x1, y2-y1
 	img.x0 = x1 + w/2
 	img.y0 = y1 + h/2
@@ -45,12 +45,11 @@ func (img *Img) Arc(scr *ebiten.Image, x, y, r, φ1, φ2 float32, clr color.Colo
 	for i := range img.vertices {
 		img.vertices[i].SrcX = 1
 		img.vertices[i].SrcY = 1
-		img.vertices[i].ColorR = float32(red)
-		img.vertices[i].ColorG = float32(green)
-		img.vertices[i].ColorB = float32(blue)
+		img.vertices[i].ColorR = float32(red / 256) //+ float32(i)
+		img.vertices[i].ColorG = float32(green / 256) //- float32(i)
+		img.vertices[i].ColorB = float32(blue / 256)
 		img.vertices[i].ColorA = 1
 	}
-
 	trop := &ebiten.DrawTrianglesOptions{}
 	trop.AntiAlias = true
 	trop.FillRule = ebiten.FillRuleNonZero
