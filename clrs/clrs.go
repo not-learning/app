@@ -6,7 +6,7 @@ type Clr color.Color
 
 var (
 	Green Clr = color.RGBA{0, 255, 75, 255}
-	Blue  Clr = color.RGBA{0, 75, 255, 255}
+	Blue  Clr = color.RGBA{0, 125, 255, 255}
 	White Clr = color.White
 )
 

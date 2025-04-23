@@ -21,16 +21,20 @@ type Img struct { // todo a better name
 	//w, h float32
 }
 
-func Init(x1, y1, x2, y2 float32) *Img {
+func Init(x0, y0 float32) *Img {
 	img := &Img{}
 	img.tr = ebiten.NewImage(2, 2)
 	img.tr.Fill(color.RGBA{1, 1, 1, 1})
-	w, h := x2-x1, y2-y1
-	img.x0 = x1 + w/2
-	img.y0 = y1 + h/2
-	/*img.w = x2
-	img.h = y2//*/
+	img.x0, img.y0 = x0, y0
 	return img
+}
+
+func (img *Img) CirEmp(scr *ebiten.Image, x, y, r float32, clr color.Color) {
+	vector.StrokeCircle(scr, x+img.x0, -y+img.y0, r, 1, clr, true)
+}
+
+func (img *Img) CirFull(scr *ebiten.Image, x, y, r float32, clr color.Color) {
+	vector.DrawFilledCircle(scr, x+img.x0, -y+img.y0, r, clr, true)
 }
 
 func (img *Img) Arc(scr *ebiten.Image, x, y, r, φ1, φ2 float32, clr color.Color) {
@@ -61,10 +65,10 @@ func (img *Img) Poly(scr *ebiten.Image, crds []*vec.VecF32, clr color.Color) {
 	var path vector.Path
 	for i, v := range crds {
 		if i == 0 {
-			path.MoveTo(v.X, v.Y)
+			path.MoveTo(v.X+img.x0, -v.Y+img.y0)
 			continue
 		}
-		path.LineTo(v.X, v.Y)
+		path.LineTo(v.X+img.x0, -v.Y+img.y0)
 	}
 
 	op := &vector.StrokeOptions{}

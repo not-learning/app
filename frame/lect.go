@@ -9,10 +9,11 @@ import (
 	"github.com/not-learning/app/tracks"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type lects struct {
-	tracks *tracks.Tracks
+	Tracks *tracks.Tracks
 	subs   [][]string
 	n      int
 }
@@ -26,6 +27,7 @@ type ex struct {
 }
 
 type Lect struct {
+	play bool
 	lects
 	ex
 	*draw.Img
@@ -35,9 +37,10 @@ type Lect struct {
 
 func Init(x1, y1, x2, y2 float32) *Lect {
 	l := &Lect{}
-	l.Img = draw.Init(x1, y1, x2, y2)
 	l.Font = fonts.InitFont()
 	l.b = InitBlocks(x1, y1, x2, y2)
+	l.Img = draw.Init(l.b.screen.MidF32())
+	l.lects.Tracks = tracks.Init()
 	return l
 } //*/
 
@@ -61,30 +64,40 @@ func (l *Lect) AddSubs(subs ...string) {
 	}
 }
 
-func (l *Lect) AddShape(fn func(*ebiten.Image)) {
-	l.shapes = append(l.shapes, fn)
+func (l *Lect) AddShapes(fns ...func(*ebiten.Image)) {
+	l.shapes = append(l.shapes, fns...)
 }
 
-func (l *Lect) AddAnim(fn func()) {
-	l.anims = append(l.anims, fn)
+func (l *Lect) AddAnims(fns ...func()) {
+	l.anims = append(l.anims, fns...)
 }
 
-func (l *Lect) AddXact(fn func()) {
-	l.xacts = append(l.xacts, fn)
+func (l *Lect) AddXacts(fns ...func()) {
+	l.xacts = append(l.xacts, fns...)
+}
+
+func (l *Lect) Play() {
+	l.play = true
+	l.Tracks.Play()
+}
+
+func (l *Lect) Pause() {
+	l.play = !l.play
+	l.Tracks.Pause()
 }
 
 func (l *Lect) Next() {
-	if l.lects.n <= len(l.lects.subs) {
-		l.lects.n++
-	}
-	if l.ex.n <= len(l.ex.texts) {
-		l.ex.n++
-	}
-	l.tracks.Next()
+	if l.lects.n <= len(l.lects.subs) { l.lects.n++ }
+	if l.ex.n <= len(l.ex.texts) { l.ex.n++ }
+	l.Tracks.Next()
+}
+
+func (l *Lect) Space() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeySpace)
 }
 
 func (l *Lect) MouseL() bool {
-	return ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
+	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 }
 
 func (l *Lect) MouseR() bool {
@@ -103,9 +116,15 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 		l.Font.Set(15, clrs.White)
 		l.Font.Draw(screen, v, x, y)
 	}
+
+	x, y := l.b.pause.MidF32()
+	l.Font.Set(50, clrs.White)
+	l.Font.DrawCenter(screen, "▶", x, y)
+
+	//l.b.top.WalkUp(draw.TestDraw(screen))
 }
 
 func (l *Lect) Update() {
-	l.anims[l.ex.n]()
+	if l.play { l.anims[l.ex.n]() }
 	l.xacts[l.ex.n]()
 }

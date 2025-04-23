@@ -25,7 +25,7 @@ func InitBlocks(x1, y1, x2, y2 float32) *blocks {
 	top.Add(sl)
 
 	pl := lmnts.New()
-	pl.SetSize(0, 75)
+	pl.SetSize(0, 100)
 	b.pause = lmnts.New()
 	b.pause.SetSize(75, 75)
 	pl.AddLR(0, 0, b.pause)

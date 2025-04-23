@@ -13,7 +13,7 @@ import (
 // TODO relative sizes
 // TODO: have lists prepared for drawing
 
-//const scrW, scrH = 900, 2000
+// const scrW, scrH = 900, 2000
 const scrW, scrH = 450, 1000
 //const scrW, scrH = 270, 600
 
