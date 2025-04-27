@@ -52,21 +52,21 @@ func (t *Trig) shape1(scr *ebiten.Image) {
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
 	t.CirFull(scr, t.x, 0, 4, clrs.White)
 	t.CirFull(scr, 0, t.y, 4, clrs.White)
-	t.Label(scr, "x", 15, t.x+10, -10, clrs.White)
-	t.Label(scr, "y", 15, -10, t.y+10, clrs.White)
 
-	/*t.CirFull(scr, x, y, 4, clrs.Black)
-	t.CirFull(scr, x, 0, 4, clrs.Black)
-	t.CirFull(scr, 0, y, 4, clrs.Black)
-	t.CirEmp(scr,  x, y, 4, clrs.White)
-	t.CirEmp(scr,  x, 0, 4, clrs.White)
-	t.CirEmp(scr,  0, y, 4, clrs.White)//*/
+	/*var a, b float32 = -10, -10
+	if t.y < 0 { a = 10 }
+	if t.x < 0 { b = 10 }
+	t.Label(scr, "x", 15, t.x, a, clrs.White)
+	t.Label(scr, "y", 15, b, t.y, clrs.White)//*/
+
+	t.Label(scr, "x", 15, t.x-10, -10, clrs.White)
+	t.Label(scr, "y", 15, 10, t.y-10, clrs.White)
 }
 
 func (t *Trig) anim1() {
 		t.a2 += 0.02
 		t.x, t.y = t.xy()
-	if t.a2 == 2*math.Pi { t.a2 = 0 }
+	if t.a2 >= 4*math.Pi { t.a2 = 2*math.Pi }
 }
 
 func (t *Trig) xact1() {

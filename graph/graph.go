@@ -17,21 +17,14 @@ import (
 // TODO: have lists prepared for drawing
 // TODO: deal with myClr
 
-/*type label struct {
-	string
-	size float64
-	x, y float32
-	clr clrs.Clr
-}//*/
-
 type Graph struct {
+	*fonts.Font
+
 	vertices []ebiten.Vertex
 	indices  []uint16
 	tr       *ebiten.Image
-	x0, y0   float32
 
-	*fonts.Font
-	//labels [][]*label
+	x0, y0   float32
 }
 
 func Init() *Graph {
@@ -110,20 +103,9 @@ func (g *Graph) Poly(scr *ebiten.Image, crds []*vec.VecF32, clr clrs.Clr) {
 }
 
 func (g *Graph) Label(scr *ebiten.Image, text string, size, x, y float32, clr clrs.Clr) {
-	//l := &label{string: text, size: size, x: x, y: y, clr: clr}
 	g.Font.Set(float64(size), clr)
 	g.Font.DrawCenter(scr, text, x+g.x0, -y+g.y0)
 }
-
-/*func (l *label) Text() string { return l.string }
-func (l *label) Size() float64 { return l.size }
-func (l *label) Pos() (float32, float32) { return l.x, l.y }
-func (l *label) Clr() clrs.Clr { return l.clr }
-
-func (l *label) SetText(s string) { l.string = s }
-func (l *label) SetSize(s float32) { l.size = float64(s) }
-func (l *label) SetPos(x, y float32) { l.x, l.y = x, y }
-func (l *label) SetClr(clr clrs.Clr) { l.clr = clr }//*/
 
 // ### Shapes ###
 func (g *Graph) Arrow(scr *ebiten.Image, x1, y1, x2, y2 float32, clr clrs.Clr) {
