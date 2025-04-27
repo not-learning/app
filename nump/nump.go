@@ -3,7 +3,7 @@ package nump
 import (
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/fonts"
-	"github.com/not-learning/app/draw"
+	"github.com/not-learning/app/graph"
 	"strconv"
 
 	l "github.com/not-learning/lmnts"
@@ -84,8 +84,8 @@ func (n *NumP) Update() {
 
 func (n *NumP) Draw(scr *ebiten.Image) {
 	//n.top.WalkUp(myDraw(scr))
-	draw.Draw(scr, n.npBtns...)
-	draw.Draw(scr, n.eraseBtn, n.checkBtn)
+	graph.Draw(scr, n.npBtns...)
+	graph.Draw(scr, n.eraseBtn, n.checkBtn)
 
 	var x, y float32
 	for i, k := range n.npBtns {

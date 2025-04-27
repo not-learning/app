@@ -1,11 +1,12 @@
 package frame
 
 import (
+	//"slices"
 	"strings"
 
 	"github.com/not-learning/app/clrs"
-	"github.com/not-learning/app/draw"
 	"github.com/not-learning/app/fonts"
+	"github.com/not-learning/app/graph"
 	"github.com/not-learning/app/tracks"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -19,18 +20,19 @@ type lects struct {
 }
 
 type ex struct {
-	texts  []string
 	shapes []func(*ebiten.Image)
 	anims  []func()
 	xacts  []func()
 	n      int
 }
 
+// TODO: think if move x0, y0 here
 type Lect struct {
 	play bool
 	lects
 	ex
-	*draw.Img
+
+	*graph.Graph
 	*fonts.Font
 	b *blocks
 }
@@ -39,7 +41,8 @@ func Init(x1, y1, x2, y2 float32) *Lect {
 	l := &Lect{}
 	l.Font = fonts.InitFont()
 	l.b = InitBlocks(x1, y1, x2, y2)
-	l.Img = draw.Init(l.b.screen.MidF32())
+	l.Graph = graph.Init()
+	l.Graph.SetOrigin(l.b.screen.MidF32())
 	l.lects.Tracks = tracks.Init()
 	return l
 } //*/
@@ -88,7 +91,7 @@ func (l *Lect) Pause() {
 
 func (l *Lect) Next() {
 	if l.lects.n <= len(l.lects.subs) { l.lects.n++ }
-	if l.ex.n <= len(l.ex.texts) { l.ex.n++ }
+	if l.ex.n <= len(l.ex.anims) { l.ex.n++ }
 	l.Tracks.Next()
 }
 
@@ -97,7 +100,7 @@ func (l *Lect) Space() bool {
 }
 
 func (l *Lect) MouseL() bool {
-	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
+	return ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
 }
 
 func (l *Lect) MouseR() bool {
@@ -121,7 +124,7 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 	l.Font.Set(50, clrs.White)
 	l.Font.DrawCenter(screen, "▶", x, y)
 
-	//l.b.top.WalkUp(draw.TestDraw(screen))
+	//l.b.top.WalkUp(graph.TestDraw(screen))
 }
 
 func (l *Lect) Update() {
