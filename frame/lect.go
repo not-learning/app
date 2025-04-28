@@ -44,6 +44,7 @@ func Init(x1, y1, x2, y2 float32) *Lect {
 	l.Graph = graph.Init()
 	l.Graph.SetOrigin(l.b.screen.MidF32())
 	l.lects.Tracks = tracks.Init()
+	// l.play = true
 	return l
 } //*/
 

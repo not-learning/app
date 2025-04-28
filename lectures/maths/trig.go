@@ -1,12 +1,11 @@
 package maths
 
-import (
+import (//"fmt"
 	"embed"
 	"math"
 
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/frame"
-	"github.com/not-learning/app/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -14,62 +13,48 @@ import (
 type Trig struct {
 	*frame.Lect
 	clrs.Clr
+	animDone bool
 
-	r, a1, a2, x, y float32
+	r, a1, a2, x, y, prevX, prevY float32
+	polygon []float32
+	n int
+	c, s float32
+
+	animP func(float32) []float32
 }
 
-// Надо?
-var sub1 = `Как описать вращение математически?
-Ну то есть, вот точка движется по кругу. Как превратить это в числа?
-Вообще, над этим вопросом интересно подумать самостоятельно...
-Но мы не будем.`
-
-/*func (t *Trig) shape1(scr *ebiten.Image) {
-	t.Arc(scr, 0, 0, 100, t.a1, t.a2, t.Clr)
-}//*/
-
-func (t *Trig) xy() (x, y float32) {
+func (t *Trig) xy() {
 	s, c := math.Sincos(float64(t.a2))
-	x, y = t.r*float32(c), t.r*float32(s)
-	return
+	t.x, t.y = t.r*float32(c), t.r*float32(s)
 }
+
+var sub1 = `Возьмем робота, который может вырезать любую фигуру по координатам.`
 
 func (t *Trig) shape1(scr *ebiten.Image) {
-	t.Coords(scr, clrs.Green)
+	t.PolyEmp(scr, t.polygon, clrs.Green)
 
-	t.Arrow(scr, 0, 0, 1.2*t.x, 1.2*t.y, clrs.White)
+	if t.animDone {return}
 
-	/*t.Font.Set(20, clrs.Green)
-	t.Font.DrawCenter(scr, "►", (r+20), 0)//*/
-
-	/*t.Poly(scr, []*vec.VecF32{{0, 0}, {x*1.5, y*1.5}}, clrs.White)
-	t.Poly(scr, []*vec.VecF32{{0, 0}, {r*1.5, 0}}, clrs.White)//*/
-
-	t.Poly(scr, []*vec.VecF32{{t.x, t.y}, {t.x, 0}}, clrs.Blue)
-	t.Poly(scr, []*vec.VecF32{{t.x, t.y}, {0, t.y}}, clrs.Blue)
-
-	t.Arc(scr, 0, 0, t.r, t.a1, t.a2, t.Clr)
+	t.Coords(scr, clrs.Blue)
+	t.CirFull(scr, t.x, 0, 4, clrs.Blue)
+	t.CirFull(scr, 0, t.y, 4, clrs.Blue)
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
-	t.CirFull(scr, t.x, 0, 4, clrs.White)
-	t.CirFull(scr, 0, t.y, 4, clrs.White)
-
-	/*var a, b float32 = -10, -10
-	if t.y < 0 { a = 10 }
-	if t.x < 0 { b = 10 }
-	t.Label(scr, "x", 15, t.x, a, clrs.White)
-	t.Label(scr, "y", 15, b, t.y, clrs.White)//*/
-
-	t.Label(scr, "x", 15, t.x-10, -10, clrs.White)
-	t.Label(scr, "y", 15, 10, t.y-10, clrs.White)
-}
+	t.PolyEmp(scr, []float32{t.x, 0, t.x, t.y}, clrs.Blue)
+	t.PolyEmp(scr, []float32{0, t.y, t.x, t.y}, clrs.Blue)
+}//*/
 
 func (t *Trig) anim1() {
-		t.a2 += 0.02
-		t.x, t.y = t.xy()
-	if t.a2 >= 4*math.Pi { t.a2 = 2*math.Pi }
+	t.polygon = t.animP(5)
+	l := len(t.polygon)
+	t.x, t.y = t.polygon[l-2], t.polygon[l-1]
+
+	t.animDone = (t.prevX == t.x && t.prevY == t.y)
+	t.prevX, t.prevY = t.x, t.y
 }
 
 func (t *Trig) xact1() {
+	if t.Space() { t.Pause() }
+
 	if t.Lect.MouseR() {
 		t.Clr = clrs.Blue
 	} else if t.Lect.MouseL() {
@@ -78,7 +63,6 @@ func (t *Trig) xact1() {
 	} else {
 		t.Clr = clrs.Green
 	}
-	if t.Space() { t.Pause() }
 }
 
 var sub2 = `Возьмем координатную плоскость.`
@@ -91,20 +75,46 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 	t := &Trig{}
 	t.Lect = frame.Init(x1, y1, x2, y2)
 	t.Lect.Tracks.InitFiles("tracks/pow", files)
-	// t.Lect.Tracks.Play()
 
-	t.r, t.a1, t.a2 = 180, 0, 0
-	t.x, t.y = t.xy()
+	t.animDone = true
+	t.a1 = float32(math.Pi/2)
+
+	t.r = 180
+	t.n = 100
+	t.animP = frame.AnimPoly(frame.Polygon(t.n, 0, 0, t.r, 0))
+
 	t.AddSubs(sub1, sub2)
-	t.AddShapes(t.shape1)
-
-	/*lx, ly := t.NewLabel("x"), t.NewLabel("y")
-
-	lx.SetPos(t.x, 10)
-	ly.SetPos(10, t.y)
-	t.AddLabels(lx, ly)//*/
 	t.AddAnims(t.anim1)
+	t.AddShapes(t.shape1)
 	t.AddXacts(t.xact1)
 	t.Clr = clrs.Green
 	return t
 }
+
+/*func (t *Trig) shape1(scr *ebiten.Image) {
+	t.Coords(scr, clrs.Green)
+
+	//t.Arrow(scr, 0, 0, 1.2*t.x, 1.2*t.y, clrs.White)
+	t.PolyEmp(scr, []float32{0, 0, t.x, t.y}, clrs.White)
+
+	//t.PolyEmp(scr, []float32{0, 0, x*1.5, y*1.5}, clrs.White)
+	//t.PolyEmp(scr, []float32{0, 0, r*1.5, 0}, clrs.White)
+
+	t.PolyEmp(scr, []float32{t.x, t.y, t.x, 0}, clrs.Blue)
+	t.PolyEmp(scr, []float32{t.x, t.y, 0, t.y}, clrs.Blue)
+
+	t.Arc(scr, 0, 0, t.r, t.a1, t.a2, t.Clr)
+	t.CirFull(scr, t.x, t.y, 4, clrs.White)
+	t.CirFull(scr, t.x,   0, 4, clrs.White)
+	t.CirFull(scr, 0,   t.y, 4, clrs.White)
+
+	t.Label(scr, "x", 15, t.x, -10, clrs.White)
+	t.Label(scr, "y", 15, 10, t.y, clrs.White)
+}//*/
+
+/*func (t *Trig) anim1() {
+		t.a2 += 0.02
+		t.xy()
+	if t.a2 >= 4*math.Pi { t.a2 = 2*math.Pi }
+	//if t.a2 >= 2.33*math.Pi { t.a2 = 2.33*math.Pi } else { t.a2 += 0.02 }
+}//*/

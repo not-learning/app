@@ -5,7 +5,7 @@ import "image/color"
 type Clr color.Color
 
 var (
-	Green Clr = color.RGBA{0, 255, 75, 255}
+	Green Clr = color.RGBA{0, 150, 75, 255}
 	Blue  Clr = color.RGBA{0, 125, 255, 255}
 	White Clr = color.White
 	Black Clr = color.Black

@@ -2,11 +2,12 @@ package graph
 
 import (
 	"image/color"
+	"log"
 	"math"
 
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/fonts"
-	"github.com/not-learning/app/vec"
+	//"github.com/not-learning/app/vec"
 
 	"github.com/not-learning/lmnts"
 
@@ -38,7 +39,8 @@ func Init() *Graph {
 func (g *Graph) SetOrigin(x0, y0 float32) { g.x0, g.y0 = x0, y0 }
 
 func (g *Graph) CirEmp(scr *ebiten.Image, x, y, r float32, clr clrs.Clr) {
-	vector.StrokeCircle(scr, x+g.x0, -y+g.y0, r, 1, clr, true)
+	vector.DrawFilledCircle(scr, x+g.x0, -y+g.y0, r, clrs.Black, true)
+	vector.StrokeCircle(scr, x+g.x0, -y+g.y0, r, 1.5, clr, true)
 }
 
 func (g *Graph) CirFull(scr *ebiten.Image, x, y, r float32, clr clrs.Clr) {
@@ -69,19 +71,59 @@ func (g *Graph) Arc(scr *ebiten.Image, x, y, r, φ1, φ2 float32, clr clrs.Clr) 
 	scr.DrawTriangles(g.vertices, g.indices, g.tr, trop)
 }
 
-func (g *Graph) Poly(scr *ebiten.Image, crds []*vec.VecF32, clr clrs.Clr) {
+func (g *Graph) PolyEmp(scr *ebiten.Image, crds []float32, clr clrs.Clr) {
+	if len(crds) == 0 {
+		//log.Println("PolyEmp: no coordinates")
+		return
+	}
+	if len(crds)%2 != 0 {
+		log.Println("PolyEmp: odd number of coordinates")
+	}
+
 	var path vector.Path
-	for i, v := range crds {
+	for i, k := 0, 1; k < len(crds); i, k = i+2, k+2 {
 		if i == 0 {
-			path.MoveTo(v.X+g.x0, -v.Y+g.y0)
+			path.MoveTo(crds[i] + g.x0, -crds[k] + g.y0)
 			continue
 		}
-		path.LineTo(v.X+g.x0, -v.Y+g.y0)
+		path.LineTo(crds[i]+g.x0, -crds[k]+g.y0)
 	}
 
 	op := &vector.StrokeOptions{}
 	op.Width = 1.5
 	g.vertices, g.indices = path.AppendVerticesAndIndicesForStroke(g.vertices[:0], g.indices[:0], op)
+
+	red, green, blue, _ := clr.RGBA()
+	for i := range g.vertices {
+		/*g.vertices[i].DstX += v.X
+		g.vertices[i].DstY += v.Y//*/
+		g.vertices[i].SrcX = 1
+		g.vertices[i].SrcY = 1
+		g.vertices[i].ColorR = float32(red / 256)
+		g.vertices[i].ColorG = float32(green / 256)
+		g.vertices[i].ColorB = float32(blue / 256)
+		g.vertices[i].ColorA = 1
+	}
+
+	trop := &ebiten.DrawTrianglesOptions{}
+	trop.AntiAlias = true
+	trop.FillRule = ebiten.FillRuleNonZero
+
+	scr.DrawTriangles(g.vertices, g.indices, g.tr, trop)
+}
+
+func (g *Graph) PolyFull(scr *ebiten.Image, crds []float32, clr clrs.Clr) {
+	var path vector.Path
+	for i, k := 0, 1; k < len(crds); i, k = i+2, k+2 {
+		if i == 0 {
+			path.MoveTo(crds[i]+g.x0, -crds[k]+g.y0)
+			continue
+		}
+		path.LineTo(crds[i]+g.x0, -crds[k]+g.y0)
+	}
+	path.Close()
+
+	g.vertices, g.indices = path.AppendVerticesAndIndicesForFilling(g.vertices[:0], g.indices[:0])
 
 	red, green, blue, _ := clr.RGBA()
 	for i := range g.vertices {
@@ -109,17 +151,20 @@ func (g *Graph) Label(scr *ebiten.Image, text string, size, x, y float32, clr cl
 
 // ### Shapes ###
 func (g *Graph) Arrow(scr *ebiten.Image, x1, y1, x2, y2 float32, clr clrs.Clr) {
-	g.Poly(scr, []*vec.VecF32{{x1, y1}, {x2, y2}}, clr)
+	g.PolyEmp(scr, []float32{x1, y1, x2, y2}, clr)
+	//g.Label(scr, "►", 20, x2, y2, clr)
 	w, h := x2-x1, y2-y1
 	l := float32(math.Hypot(float64(w), float64(h)))
 	if l == 0 {return}
 	s, c := h/l, w/l
 	var al, aw float32 = 15, 4 // arrow tip length and width
-	g.Poly(scr, []*vec.VecF32{
-		{ x2 + aw*s - al*c, y2 - aw*c - al*s },
-		{ x2, y2 },
-		{ x2 - aw*s - al*c, y2 + aw*c - al*s },
-	}, clr)
+	g.PolyFull(scr, []float32{
+		x2 + aw*s - al*c,
+		y2 - aw*c - al*s,
+		x2, y2,
+		x2 - aw*s - al*c,
+		y2 + aw*c - al*s,
+	}, clr)//*/
 }
 
 func (g *Graph) Coords(scr *ebiten.Image, clr clrs.Clr) {
