@@ -29,6 +29,7 @@ type ex struct {
 // TODO: think if move x0, y0 here
 type Lect struct {
 	play bool
+	Done bool
 	lects
 	ex
 
@@ -48,10 +49,26 @@ func Init(x1, y1, x2, y2 float32) *Lect {
 	return l
 } //*/
 
+func (l *Lect) Play() {
+	l.play = true
+	l.Tracks.Play()
+}
+
+func (l *Lect) Pause() {
+	l.play = !l.play
+	l.Tracks.Pause()
+}
+
+func (l *Lect) Next() {
+	if l.lects.n < len(l.lects.subs)-1 { l.lects.n++ }
+	if l.ex.n < len(l.ex.anims)-1 { l.ex.n++ }
+	//l.Tracks.Next()
+}
+
 func (l *Lect) doSub(sub string) {
 	res := [][]string{}
 	x1, _, x2, _ := l.b.subs[0].Rect()
-	w := float64(x2 - x1)
+	w := float64(x2 - x1) - 20 // TODO proper sizes
 	for i, v := range strings.Split(sub, "\n") {
 		l.Font.Set(15, clrs.White)
 		res = append(res, []string{})
@@ -78,22 +95,6 @@ func (l *Lect) AddAnims(fns ...func()) {
 
 func (l *Lect) AddXacts(fns ...func()) {
 	l.xacts = append(l.xacts, fns...)
-}
-
-func (l *Lect) Play() {
-	l.play = true
-	l.Tracks.Play()
-}
-
-func (l *Lect) Pause() {
-	l.play = !l.play
-	l.Tracks.Pause()
-}
-
-func (l *Lect) Next() {
-	if l.lects.n <= len(l.lects.subs) { l.lects.n++ }
-	if l.ex.n <= len(l.ex.anims) { l.ex.n++ }
-	l.Tracks.Next()
 }
 
 func (l *Lect) Space() bool {
@@ -131,4 +132,5 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 func (l *Lect) Update() {
 	if l.play { l.anims[l.ex.n]() }
 	l.xacts[l.ex.n]()
+	if l.Done && !l.Tracks.IsPlaying() { l.Next() }
 }

@@ -167,9 +167,16 @@ func (g *Graph) Arrow(scr *ebiten.Image, x1, y1, x2, y2 float32, clr clrs.Clr) {
 	}, clr)//*/
 }
 
-func (g *Graph) Coords(scr *ebiten.Image, clr clrs.Clr) {
-	g.Arrow(scr, -200, 0, 200, 0, clr)
-	g.Arrow(scr, 0, -200, 0, 200, clr)
+func (g *Graph) Coords(scr *ebiten.Image) {
+	g.Arrow(scr, -200, 0, 200, 0, clrs.Blue)
+	g.Arrow(scr, 0, -200, 0, 200, clrs.Blue)
+}
+
+func (g *Graph) Robot(scr *ebiten.Image, x, y, edge float32) {
+	g.CirFull(scr, x, -edge, 4, clrs.Blue)
+	g.CirFull(scr, -edge, y, 4, clrs.Blue)
+	g.PolyEmp(scr, []float32{x, -edge, x, y}, clrs.Blue)
+	g.PolyEmp(scr, []float32{-edge, y, x, y}, clrs.Blue)
 }
 
 // TODO get rid of

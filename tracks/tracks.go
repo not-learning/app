@@ -103,7 +103,7 @@ func (t *Tracks) Pause() {
 }
 
 func (t *Tracks) nextTrack() {
-	if t.curTrack <= len(t.tracks) { t.curTrack++ }
+	if t.curTrack < len(t.tracks)-1 { t.curTrack++ }
 }
 
 func (t *Tracks) prevTrack() {

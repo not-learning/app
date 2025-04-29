@@ -1,6 +1,6 @@
 package maths
 
-import (//"fmt"
+import (
 	"embed"
 	"math"
 
@@ -13,8 +13,8 @@ import (//"fmt"
 type Trig struct {
 	*frame.Lect
 	clrs.Clr
-	animDone bool
 
+	//animDone bool
 	r, a1, a2, x, y, prevX, prevY float32
 	polygon []float32
 	n int
@@ -24,16 +24,26 @@ type Trig struct {
 }
 
 func (t *Trig) xy() {
-	s, c := math.Sincos(float64(t.a2))
+	s, c := math.Sincos(float64(t.a1))
 	t.x, t.y = t.r*float32(c), t.r*float32(s)
 }
 
-var sub1 = `Возьмем робота, который может вырезать любую фигуру по координатам.`
+var sub1 = `Представь робота, который может вырезать любую фигуру по ее координатам.`
 
 func (t *Trig) shape1(scr *ebiten.Image) {
 	t.PolyEmp(scr, t.polygon, clrs.Green)
 
-	if t.animDone {return}
+	//if t.Done {return}
+
+	//t.Coords(scr, clrs.Blue)
+	t.CirFull(scr, t.x, t.y, 4, clrs.White)
+	t.Robot(scr, t.x, t.y, t.r)
+}//*/
+
+/*func (t *Trig) shape2(scr *ebiten.Image) {
+	t.PolyEmp(scr, t.polygon, clrs.Green)
+
+	if t.Done {return}
 
 	t.Coords(scr, clrs.Blue)
 	t.CirFull(scr, t.x, 0, 4, clrs.Blue)
@@ -44,11 +54,11 @@ func (t *Trig) shape1(scr *ebiten.Image) {
 }//*/
 
 func (t *Trig) anim1() {
-	t.polygon = t.animP(5)
+	t.polygon = t.animP(10)
 	l := len(t.polygon)
 	t.x, t.y = t.polygon[l-2], t.polygon[l-1]
 
-	t.animDone = (t.prevX == t.x && t.prevY == t.y)
+	t.Done = (t.prevX == t.x && t.prevY == t.y)
 	t.prevX, t.prevY = t.x, t.y
 }
 
@@ -65,7 +75,48 @@ func (t *Trig) xact1() {
 	}
 }
 
-var sub2 = `Возьмем координатную плоскость.`
+var sub2 = `Мы хотим вырезать круг. Как задать координаты?`
+
+func (t *Trig) shape2(scr *ebiten.Image) {
+	t.Robot(scr, t.x, t.y, t.r+20)
+	t.CirFull(scr, t.x, t.y, 4, clrs.White)
+}
+
+func (t *Trig) anim2() {
+	t.Done = false
+	t.a1 += 0.2
+	t.xy()
+	if t.a1 > 2*2*math.Pi { t.Done = true }
+}
+
+var sub3 = `Возьмем координатную плоскость.`
+
+func (t *Trig) shape3(scr *ebiten.Image) {
+	t.Coords(scr)
+}
+
+func (t *Trig) anim3() {
+	t.a1 = 0
+	/*t.Done = false
+	//if t.a1 >= 2*math.Pi { t.a1 = 2*math.Pi }
+	t.xy()//*/
+}
+
+var sub4 = `И поместим на нее круг.`
+
+func (t *Trig) shape4(scr *ebiten.Image) {
+	t.Coords(scr)
+	t.Arc(scr, 0, 0, t.r, 0, t.a1, t.Clr)
+}
+
+func (t *Trig) anim4() {
+	t.Done = false
+	t.a1 += 0.2
+	if t.a1 >= 2*math.Pi { t.a1 = 2*math.Pi }
+	t.xy()//*/
+}
+
+
 
 // TODO proper tracks
 //go:embed tracks/pow
@@ -76,17 +127,25 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 	t.Lect = frame.Init(x1, y1, x2, y2)
 	t.Lect.Tracks.InitFiles("tracks/pow", files)
 
-	t.animDone = true
-	t.a1 = float32(math.Pi/2)
-
+	//t.Done = true
+	//t.a1 = float32(math.Pi/2)
 	t.r = 180
-	t.n = 100
-	t.animP = frame.AnimPoly(frame.Polygon(t.n, 0, 0, t.r, 0))
 
-	t.AddSubs(sub1, sub2)
-	t.AddAnims(t.anim1)
-	t.AddShapes(t.shape1)
-	t.AddXacts(t.xact1)
+	var a float32 = math.Pi/5
+	five1 := frame.Polygon(5, 0, 0, t.r, 0.1)
+	five2 := frame.Polygon(5, 0, 0, t.r/2.6, a+0.1)
+	star := make([]float32, 24)
+	for i := 0; i < len(five1); i += 2 {
+		star[2*i], star[2*i+1] = five1[i], five1[i+1]
+		star[2*i+2], star[2*i+3] = five2[i], five2[i+1]
+	}
+
+	t.animP = frame.AnimPoly(star[:len(star)-2])
+
+	t.AddSubs(sub1, sub2, sub3, sub4)
+	t.AddAnims(t.anim1, t.anim2, t.anim3, t.anim4)
+	t.AddShapes(t.shape1, t.shape2, t.shape3, t.shape4)
+	t.AddXacts(t.xact1, t.xact1, t.xact1, t.xact1)
 	t.Clr = clrs.Green
 	return t
 }
@@ -94,6 +153,7 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 /*func (t *Trig) shape1(scr *ebiten.Image) {
 	t.Coords(scr, clrs.Green)
 
+	t.Arc(scr, 0, 0, t.r, 0, t.a1, t.Clr)
 	//t.Arrow(scr, 0, 0, 1.2*t.x, 1.2*t.y, clrs.White)
 	t.PolyEmp(scr, []float32{0, 0, t.x, t.y}, clrs.White)
 
@@ -103,7 +163,6 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 	t.PolyEmp(scr, []float32{t.x, t.y, t.x, 0}, clrs.Blue)
 	t.PolyEmp(scr, []float32{t.x, t.y, 0, t.y}, clrs.Blue)
 
-	t.Arc(scr, 0, 0, t.r, t.a1, t.a2, t.Clr)
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
 	t.CirFull(scr, t.x,   0, 4, clrs.White)
 	t.CirFull(scr, 0,   t.y, 4, clrs.White)
