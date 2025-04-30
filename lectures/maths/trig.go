@@ -14,7 +14,6 @@ type Trig struct {
 	*frame.Lect
 	clrs.Clr
 
-	//animDone bool
 	r, a1, a2, x, y, prevX, prevY float32
 	polygon []float32
 	n int
@@ -31,26 +30,9 @@ func (t *Trig) xy() {
 var sub1 = `Представь робота, который может вырезать любую фигуру по ее координатам.`
 
 func (t *Trig) shape1(scr *ebiten.Image) {
-	t.PolyEmp(scr, t.polygon, clrs.Green)
-
-	//if t.Done {return}
-
-	//t.Coords(scr, clrs.Blue)
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
+	t.PolyEmp(scr, t.polygon, clrs.Green)
 	t.Robot(scr, t.x, t.y, t.r)
-}//*/
-
-/*func (t *Trig) shape2(scr *ebiten.Image) {
-	t.PolyEmp(scr, t.polygon, clrs.Green)
-
-	if t.Done {return}
-
-	t.Coords(scr, clrs.Blue)
-	t.CirFull(scr, t.x, 0, 4, clrs.Blue)
-	t.CirFull(scr, 0, t.y, 4, clrs.Blue)
-	t.CirFull(scr, t.x, t.y, 4, clrs.White)
-	t.PolyEmp(scr, []float32{t.x, 0, t.x, t.y}, clrs.Blue)
-	t.PolyEmp(scr, []float32{0, t.y, t.x, t.y}, clrs.Blue)
 }//*/
 
 func (t *Trig) anim1() {
@@ -86,7 +68,10 @@ func (t *Trig) anim2() {
 	t.Done = false
 	t.a1 += 0.2
 	t.xy()
-	if t.a1 > 2*2*math.Pi { t.Done = true }
+	if t.a1 > 2*2*math.Pi {
+		t.a1 = 0
+		t.Done = true
+	}
 }
 
 var sub3 = `Возьмем координатную плоскость.`
@@ -95,12 +80,7 @@ func (t *Trig) shape3(scr *ebiten.Image) {
 	t.Coords(scr)
 }
 
-func (t *Trig) anim3() {
-	t.a1 = 0
-	/*t.Done = false
-	//if t.a1 >= 2*math.Pi { t.a1 = 2*math.Pi }
-	t.xy()//*/
-}
+func (t *Trig) anim3() {}
 
 var sub4 = `И поместим на нее круг.`
 
@@ -127,8 +107,6 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 	t.Lect = frame.Init(x1, y1, x2, y2)
 	t.Lect.Tracks.InitFiles("tracks/pow", files)
 
-	//t.Done = true
-	//t.a1 = float32(math.Pi/2)
 	t.r = 180
 
 	var a float32 = math.Pi/5
@@ -142,10 +120,11 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 
 	t.animP = frame.AnimPoly(star[:len(star)-2])
 
-	t.AddSubs(sub1, sub2, sub3, sub4)
-	t.AddAnims(t.anim1, t.anim2, t.anim3, t.anim4)
-	t.AddShapes(t.shape1, t.shape2, t.shape3, t.shape4)
-	t.AddXacts(t.xact1, t.xact1, t.xact1, t.xact1)
+	t.AddEx(sub1, t.shape1, t.anim1, t.xact1)
+	t.AddEx(sub2, t.shape2, t.anim2, t.xact1)
+	t.AddEx(sub3, t.shape3, t.anim3, t.xact1)
+	t.AddEx(sub4, t.shape4, t.anim4, t.xact1)
+
 	t.Clr = clrs.Green
 	return t
 }

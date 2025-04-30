@@ -13,29 +13,24 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type lects struct {
-	Tracks *tracks.Tracks
-	subs   [][]string
-	n      int
-}
-
 type ex struct {
-	shapes []func(*ebiten.Image)
-	anims  []func()
-	xacts  []func()
-	n      int
+	sub   []string
+	shape func(*ebiten.Image)
+	anim  func()
+	xact  func()
 }
 
 // TODO: think if move x0, y0 here
 type Lect struct {
 	play bool
 	Done bool
-	lects
-	ex
+	exs  []ex
+	n    int
 
-	*graph.Graph
-	*fonts.Font
 	b *blocks
+	*fonts.Font
+	*graph.Graph
+	*tracks.Tracks
 }
 
 func Init(x1, y1, x2, y2 float32) *Lect {
@@ -44,10 +39,10 @@ func Init(x1, y1, x2, y2 float32) *Lect {
 	l.b = InitBlocks(x1, y1, x2, y2)
 	l.Graph = graph.Init()
 	l.Graph.SetOrigin(l.b.screen.MidF32())
-	l.lects.Tracks = tracks.Init()
+	l.Tracks = tracks.Init()
 	// l.play = true
 	return l
-} //*/
+}
 
 func (l *Lect) Play() {
 	l.play = true
@@ -60,41 +55,30 @@ func (l *Lect) Pause() {
 }
 
 func (l *Lect) Next() {
-	if l.lects.n < len(l.lects.subs)-1 { l.lects.n++ }
-	if l.ex.n < len(l.ex.anims)-1 { l.ex.n++ }
-	//l.Tracks.Next()
+	if l.n < len(l.exs)-1 { l.n++ }
+	//l.Tracks.Next() //TODO uncomment (developing)
 }
 
-func (l *Lect) doSub(sub string) {
-	res := [][]string{}
+func (l *Lect) doSub(sub string) []string {
+	res := []string{}
 	x1, _, x2, _ := l.b.subs[0].Rect()
 	w := float64(x2 - x1) - 20 // TODO proper sizes
-	for i, v := range strings.Split(sub, "\n") {
+	for _, v := range strings.Split(sub, "\n") {
 		l.Font.Set(15, clrs.White)
-		res = append(res, []string{})
+		//res = append(res, []string{})
 		for _, k := range l.Font.Wrap(v, w) {
-			res[i] = append(res[i], k...)
+			res = append(res, k...)
 		}
 	}
-	l.subs = append(l.subs, res...)
+	return res
 }
 
-func (l *Lect) AddSubs(subs ...string) {
-	for i := range subs {
-		l.doSub(subs[i])
+func (l *Lect) AddEx(sub string, shape func(*ebiten.Image), anim, xact func()) {
+	x := ex{
+		sub: l.doSub(sub),
+		shape: shape, anim: anim, xact: xact,
 	}
-}
-
-func (l *Lect) AddShapes(fns ...func(*ebiten.Image)) {
-	l.shapes = append(l.shapes, fns...)
-}
-
-func (l *Lect) AddAnims(fns ...func()) {
-	l.anims = append(l.anims, fns...)
-}
-
-func (l *Lect) AddXacts(fns ...func()) {
-	l.xacts = append(l.xacts, fns...)
+	l.exs = append(l.exs, x)
 }
 
 func (l *Lect) Space() bool {
@@ -114,9 +98,9 @@ func (l *Lect) MouseR() bool {
 }//*/
 
 func (l *Lect) Draw(screen *ebiten.Image) {
-	l.shapes[l.ex.n](screen)
+	l.exs[l.n].shape(screen)
 
-	for i, v := range l.subs[l.lects.n] {
+	for i, v := range l.exs[l.n].sub {
 		x, y, _, _ := l.b.subs[i].Rect()
 		l.Font.Set(15, clrs.White)
 		l.Font.Draw(screen, v, x, y)
@@ -124,13 +108,17 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 
 	x, y := l.b.pause.MidF32()
 	l.Font.Set(50, clrs.White)
-	l.Font.DrawCenter(screen, "▶", x, y)
+	if l.play {
+		l.Font.DrawCenter(screen, "▮▮", x, y)
+	} else {
+		l.Font.DrawCenter(screen, "▶", x, y)
+	}
 
 	//l.b.top.WalkUp(graph.TestDraw(screen))
 }
 
 func (l *Lect) Update() {
-	if l.play { l.anims[l.ex.n]() }
-	l.xacts[l.ex.n]()
+	if l.play { l.exs[l.n].anim() }
+	l.exs[l.n].xact()
 	if l.Done && !l.Tracks.IsPlaying() { l.Next() }
 }
