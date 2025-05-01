@@ -1,29 +1,25 @@
 package frame
 
 import (
-	//"slices"
-	"strings"
-
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/fonts"
 	"github.com/not-learning/app/graph"
 	"github.com/not-learning/app/tracks"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type ex struct {
-	sub   []string
+	sub   func(*ebiten.Image)
 	shape func(*ebiten.Image)
-	anim  func()
-	xact  func()
+	anim  func() bool
+	xact  func() bool
 }
 
 // TODO: think if move x0, y0 here
 type Lect struct {
 	play bool
-	Done bool
+	//Done bool
 	exs  []ex
 	n    int
 
@@ -56,55 +52,44 @@ func (l *Lect) Pause() {
 
 func (l *Lect) Next() {
 	if l.n < len(l.exs)-1 { l.n++ }
-	//l.Tracks.Next() //TODO uncomment (developing)
+	l.Tracks.Next()
 }
 
-func (l *Lect) doSub(sub string) []string {
+func (l *Lect) SubWrap(sub string) []string {
 	res := []string{}
 	x1, _, x2, _ := l.b.subs[0].Rect()
 	w := float64(x2 - x1) - 20 // TODO proper sizes
-	for _, v := range strings.Split(sub, "\n") {
-		l.Font.Set(15, clrs.White)
-		//res = append(res, []string{})
-		for _, k := range l.Font.Wrap(v, w) {
-			res = append(res, k...)
-		}
-	}
+	l.Font.Set(15, clrs.White)
+	res = append(res, l.Font.Wrap(sub, w)...)
 	return res
 }
 
-func (l *Lect) AddEx(sub string, shape func(*ebiten.Image), anim, xact func()) {
-	x := ex{
-		sub: l.doSub(sub),
-		shape: shape, anim: anim, xact: xact,
+func (l *Lect) SubDraw(sub []string) func(*ebiten.Image) {
+	return func(scr *ebiten.Image) {
+		for i, v := range sub {
+			x, y, _, _ := l.b.subs[i].Rect()
+			l.Font.Set(15, clrs.White)
+			l.Font.Draw(scr, v, x, y)
+		}
 	}
+}
+
+func (l *Lect) AddEx(sub, shape func(*ebiten.Image), anim, xact func() bool) {
+	x := ex{sub: sub, shape: shape, anim: anim, xact: xact}
 	l.exs = append(l.exs, x)
 }
 
-func (l *Lect) Space() bool {
-	return inpututil.IsKeyJustPressed(ebiten.KeySpace)
-}
-
-func (l *Lect) MouseL() bool {
-	return ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
-}
-
-func (l *Lect) MouseR() bool {
-	return ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight)
-}
-
-/*func (l *Lect) Touch() {
-
-}//*/
+/*func (l *Lect) Touch() {}//*/
 
 func (l *Lect) Draw(screen *ebiten.Image) {
 	l.exs[l.n].shape(screen)
+	l.exs[l.n].sub(screen)
 
-	for i, v := range l.exs[l.n].sub {
+	/*for i, v := range l.exs[l.n].sub {
 		x, y, _, _ := l.b.subs[i].Rect()
 		l.Font.Set(15, clrs.White)
 		l.Font.Draw(screen, v, x, y)
-	}
+	}//*/
 
 	x, y := l.b.pause.MidF32()
 	l.Font.Set(50, clrs.White)
@@ -118,7 +103,8 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 }
 
 func (l *Lect) Update() {
-	if l.play { l.exs[l.n].anim() }
-	l.exs[l.n].xact()
-	if l.Done && !l.Tracks.IsPlaying() { l.Next() }
+	x := l.exs[l.n].xact()
+	if !l.play { return }
+	a := l.exs[l.n].anim()
+	if x && a && !l.Tracks.IsPlaying() { l.Next() }
 }

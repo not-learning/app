@@ -5,6 +5,7 @@ import (
 	"log"
 	"embed"
 	"path"
+	"strings"
 	//"strconv"
 
 	//"github.com/hajimehoshi/ebiten"
@@ -43,9 +44,10 @@ func Init() *Tracks {
 func (t *Tracks) InitFiles(dir string, files embed.FS) {
 	fnames, err := files.ReadDir(dir)
 	if err != nil { log.Fatal("initFiles: ", err) }
-	t.tracks = make([]*audio.Player, len(fnames))
+	//t.tracks = make([]*audio.Player, len(fnames))
 
-	for i, v := range fnames {
+	for _, v := range fnames {
+		if !strings.HasSuffix(v.Name(), "ogg") {return}
 		f, err := files.ReadFile(path.Join(dir, v.Name()))
 		if err != nil { log.Fatal("tracks.initFiles() ReadFile: ", err) }
 
@@ -54,7 +56,7 @@ func (t *Tracks) InitFiles(dir string, files embed.FS) {
 
 		tr, err := t.context.NewPlayerF32(d)
 		if err != nil { log.Fatal("tracks.initFiles() NewPlayerF32: ", err) }
-		t.tracks[i] = tr
+		t.tracks = append(t.tracks, tr)
 	}
 }//*/
 

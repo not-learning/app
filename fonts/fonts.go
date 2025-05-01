@@ -56,19 +56,19 @@ func (f *Font) strLen(str string) float64 {
 	return text.Advance(str, f.face)
 }
 
-func (f *Font) Wrap(str string, width float64) [][]string {
+func (f *Font) Wrap(str string, width float64) []string {
 	words := strings.Fields(str)
-	if str == "" { return [][]string{[]string{str}} }
-	res := [][]string{[]string{words[0]}}
-	rem := width - f.strLen(res[0][0])
+	if str == "" { return []string{str} }
+	res := []string{words[0]}
+	rem := width - f.strLen(res[0])
 	i := 0
 	for _, w := range words[1:] {
 		if f.strLen(w) > rem {
-			res = append(res, []string{w})
+			res = append(res, w)
 			i++
 			rem = width - f.strLen(w)
 		} else {
-			res[i][0] += " " + w
+			res[i] += " " + w
 			rem = rem - f.strLen(" " + w)
 		}
 	}

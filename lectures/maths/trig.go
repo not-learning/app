@@ -27,7 +27,12 @@ func (t *Trig) xy() {
 	t.x, t.y = t.r*float32(c), t.r*float32(s)
 }
 
-var sub1 = `Представь робота, который может вырезать любую фигуру по ее координатам.`
+// ## Ex1
+func (t *Trig) sub1() func(*ebiten.Image) {
+	return t.SubDraw(t.SubWrap(
+		`Представь робота, который может вырезать любую фигуру по ее координатам.`,
+	))
+}
 
 func (t *Trig) shape1(scr *ebiten.Image) {
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
@@ -35,67 +40,81 @@ func (t *Trig) shape1(scr *ebiten.Image) {
 	t.Robot(scr, t.x, t.y, t.r)
 }//*/
 
-func (t *Trig) anim1() {
+func (t *Trig) anim1() bool {
 	t.polygon = t.animP(10)
 	l := len(t.polygon)
 	t.x, t.y = t.polygon[l-2], t.polygon[l-1]
 
-	t.Done = (t.prevX == t.x && t.prevY == t.y)
+	done := (t.prevX == t.x && t.prevY == t.y)
 	t.prevX, t.prevY = t.x, t.y
+	return done
 }
 
-func (t *Trig) xact1() {
-	if t.Space() { t.Pause() }
-
-	if t.Lect.MouseR() {
-		t.Clr = clrs.Blue
-	} else if t.Lect.MouseL() {
-		t.Clr = clrs.White
-		t.Play()
-	} else {
-		t.Clr = clrs.Green
-	}
+func (t *Trig) xact1() bool {
+	frame.Escape()
+	if frame.Space() { t.Pause() }
+	return true
 }
 
-var sub2 = `Мы хотим вырезать круг. Как задать координаты?`
+// ## Ex2
+func (t *Trig) sub2() func(*ebiten.Image) {
+	return t.SubDraw(t.SubWrap(
+		`Мы хотим вырезать круг. Как задать координаты?`,
+	))
+}
 
 func (t *Trig) shape2(scr *ebiten.Image) {
 	t.Robot(scr, t.x, t.y, t.r+20)
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
 }
 
-func (t *Trig) anim2() {
-	t.Done = false
+func (t *Trig) anim2() bool {
+	done := false
 	t.a1 += 0.2
 	t.xy()
 	if t.a1 > 2*2*math.Pi {
 		t.a1 = 0
-		t.Done = true
+		done = true
 	}
+	return done
 }
 
-var sub3 = `Возьмем координатную плоскость.`
+func (t *Trig) xact2() bool { return t.xact1() }
+
+// ## Ex3
+func (t *Trig) sub3() func(*ebiten.Image) {
+	return t.SubDraw(t.SubWrap(
+		`Возьмем координатную плоскость.`,
+	))
+}
 
 func (t *Trig) shape3(scr *ebiten.Image) {
 	t.Coords(scr)
 }
 
-func (t *Trig) anim3() {}
+func (t *Trig) anim3() bool { return true }
+func (t *Trig) xact3() bool { return t.xact1() }
 
-var sub4 = `И поместим на нее круг.`
+// ## Ex4
+func (t *Trig) sub4() func(*ebiten.Image) {
+	return t.SubDraw(t.SubWrap(
+		`И поместим на нее круг.`,
+	))
+}
 
 func (t *Trig) shape4(scr *ebiten.Image) {
 	t.Coords(scr)
 	t.Arc(scr, 0, 0, t.r, 0, t.a1, t.Clr)
 }
 
-func (t *Trig) anim4() {
-	t.Done = false
+func (t *Trig) anim4() bool {
 	t.a1 += 0.2
 	if t.a1 >= 2*math.Pi { t.a1 = 2*math.Pi }
 	t.xy()//*/
+	return true
 }
 
+func (t *Trig) xact4() bool { return t.xact1() }
 
 
 // TODO proper tracks
@@ -120,10 +139,10 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 
 	t.animP = frame.AnimPoly(star[:len(star)-2])
 
-	t.AddEx(sub1, t.shape1, t.anim1, t.xact1)
-	t.AddEx(sub2, t.shape2, t.anim2, t.xact1)
-	t.AddEx(sub3, t.shape3, t.anim3, t.xact1)
-	t.AddEx(sub4, t.shape4, t.anim4, t.xact1)
+	t.AddEx(t.sub1(), t.shape1, t.anim1, t.xact1)
+	t.AddEx(t.sub2(), t.shape2, t.anim2, t.xact2)
+	t.AddEx(t.sub3(), t.shape3, t.anim3, t.xact3)
+	t.AddEx(t.sub4(), t.shape4, t.anim4, t.xact4)
 
 	t.Clr = clrs.Green
 	return t
