@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 	"math"
-	"image/color"
-	"github.com/not-learning/app/lectures/maths"
 
 	"github.com/hajimehoshi/ebiten/v2"
+
+	lobby "github.com/not-learning/app/lectures"
 )
 
 // TODO image.Bounds() and friends TODO
@@ -14,26 +14,17 @@ import (
 // TODO: have lists prepared for drawing
 
 // const scrW, scrH = 900, 2000
+// const scrW, scrH = 270, 600
 const scrW, scrH = 450, 1000
-//const scrW, scrH = 270, 600
 
-type game struct {
-	// pow *maths.Pow
-	trig *maths.Trig
-}
+type game struct{ *lobby.Lobby }
 
 func (g *game) Update() error {
-	// g.pow.Update()
-	g.trig.Update()
+	g.Lobby.Update()
 	return nil
 }
 
-func (g *game) Draw(scr *ebiten.Image) {
-	s := scr
-	s.Fill(color.RGBA{20, 20, 20, 255}) // TODO use clrs
-	// g.pow.Draw(scr)
-	g.trig.Draw(scr)
-}
+func (g *game) Draw(scr *ebiten.Image) { g.Lobby.Draw(scr) }
 
 func (g *game) Layout(outW, outH int) (int, int) {
 	scale := ebiten.DeviceScaleFactor()
@@ -44,8 +35,7 @@ func (g *game) Layout(outW, outH int) (int, int) {
 
 func initGame() *game {
 	g := &game{}
-	// g.pow = maths.InitPow(0, 0, scrW, scrH)
-	g.trig = maths.InitTrig(0, 0, scrW, scrH)
+	g.Lobby = lobby.Init(0, 0, scrW, scrH)
 	return g
 }
 

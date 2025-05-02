@@ -35,7 +35,11 @@ type Tracks struct {
 
 func Init() *Tracks {
 	t := &Tracks{}
-	t.context = audio.NewContext(sr)
+	if audio.CurrentContext() == nil {
+		t.context = audio.NewContext(sr)
+	} else {
+		t.context = audio.CurrentContext()
+	}
 	t.initOwnTracks()
 	//t.initFiles(dir, files)
 	return t
