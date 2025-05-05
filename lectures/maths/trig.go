@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// TODO: prepare for Next, Prev
 type Trig struct {
 	*frame.Lect
 	clrs.Clr

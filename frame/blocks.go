@@ -11,7 +11,9 @@ type blocks struct {
 	monh   float32
 	screen *lmnts.Lmnt
 	subs   []*lmnts.Lmnt
+	prev   *lmnts.Lmnt
 	pause  *lmnts.Lmnt
+	next   *lmnts.Lmnt
 
 	npl    []*lmnts.Lmnt
 	np     *lmnts.Lmnt
@@ -43,11 +45,14 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 
 	pl := lmnts.New()
 	pl.Name = "pl"
+	pl.SetRow()
 	pl.SetSize(0, 100)
-	b.pause = lmnts.New()
+	b.prev, b.pause, b.next = lmnts.New(), lmnts.New(), lmnts.New()
 	b.pause.Name = "pause"
+	b.prev.SetSize(125, 75)
 	b.pause.SetSize(75, 75)
-	pl.AddLR(0, 0, b.pause)
+	b.next.SetSize(125, 75)
+	pl.GapsAround(30, b.prev, b.pause, b.next)
 	b.top.Add(pl)
 
 

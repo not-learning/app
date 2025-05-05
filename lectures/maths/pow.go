@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// TODO: hide numpad on Prev, Next
 type Pow struct {
 	*frame.Lect
 	clrs.Clr
@@ -106,9 +107,8 @@ func (p *Pow) anim4() bool { return true }
 
 func (p *Pow) xact4() bool {
 	if inter.Enter() { p.NumPadShow() }
-	_ = p.xact1()
 	if inter.Space() { p.NumPadHide() }
-	return true
+	return p.xact1()
 }
 //*/
 

@@ -2,10 +2,11 @@ package tracks
 
 import (
 	"bytes"
-	"log"
 	"embed"
+	"log"
 	"path"
 	"strings"
+
 	//"strconv"
 
 	//"github.com/hajimehoshi/ebiten"
@@ -15,10 +16,6 @@ import (
 )
 
 const sr = 48000
-
-// //go:embed pow
-// var files embed.FS
-//var fnames []string
 
 //go:embed answers
 var ansFiles embed.FS
@@ -47,57 +44,85 @@ func Init() *Tracks {
 
 func (t *Tracks) InitFiles(dir string, files embed.FS) {
 	fnames, err := files.ReadDir(dir)
-	if err != nil { log.Fatal("initFiles: ", err) }
+	if err != nil {
+		log.Fatal("initFiles: ", err)
+	}
 	//t.tracks = make([]*audio.Player, len(fnames))
 
 	for _, v := range fnames {
-		if !strings.HasSuffix(v.Name(), "ogg") {return}
+		if !strings.HasSuffix(v.Name(), "ogg") {
+			return
+		}
 		f, err := files.ReadFile(path.Join(dir, v.Name()))
-		if err != nil { log.Fatal("tracks.initFiles() ReadFile: ", err) }
+		if err != nil {
+			log.Fatal("tracks.initFiles() ReadFile: ", err)
+		}
 
 		d, err := vorbis.DecodeF32(bytes.NewReader(f))
-		if err != nil { log.Fatal("tracks.initFiles() vorbis.DecodeF32: ", err) }
+		if err != nil {
+			log.Fatal("tracks.initFiles() vorbis.DecodeF32: ", err)
+		}
 
 		tr, err := t.context.NewPlayerF32(d)
-		if err != nil { log.Fatal("tracks.initFiles() NewPlayerF32: ", err) }
+		if err != nil {
+			log.Fatal("tracks.initFiles() NewPlayerF32: ", err)
+		}
 		t.tracks = append(t.tracks, tr)
 	}
-}//*/
+} //*/
 
 func (t *Tracks) initOwnTracks() {
 	// t.initFiles("pow")
 
 	f, err := ansFiles.ReadFile("answers/correct/1.ogg")
-	if err != nil { log.Fatal("Audio.Init() ReadFile: ", err) }
+	if err != nil {
+		log.Fatal("Audio.Init() ReadFile: ", err)
+	}
 	d, err := vorbis.DecodeF32(bytes.NewReader(f))
-	if err != nil { log.Fatal("Audio.Init() vorbis.DecodeF32: ", err) }
+	if err != nil {
+		log.Fatal("Audio.Init() vorbis.DecodeF32: ", err)
+	}
 	t.correct, err = t.context.NewPlayerF32(d)
-	if err != nil { log.Fatal("Audio.Init() NewPlayerF32: ", err) }
+	if err != nil {
+		log.Fatal("Audio.Init() NewPlayerF32: ", err)
+	}
 
 	f, err = ansFiles.ReadFile("answers/wrong/1.ogg")
-	if err != nil { log.Fatal("Audio.Init() ReadFile: ", err) }
+	if err != nil {
+		log.Fatal("Audio.Init() ReadFile: ", err)
+	}
 	d, err = vorbis.DecodeF32(bytes.NewReader(f))
-	if err != nil { log.Fatal("Audio.Init() vorbis.DecodeF32: ", err) }
+	if err != nil {
+		log.Fatal("Audio.Init() vorbis.DecodeF32: ", err)
+	}
 	t.wrong, err = t.context.NewPlayerF32(d)
-	if err != nil { log.Fatal("Audio.Init() NewPlayerF32: ", err) }
+	if err != nil {
+		log.Fatal("Audio.Init() NewPlayerF32: ", err)
+	}
 }
 
 func (t *Tracks) PlayCorrect() {
 	if !t.IsPlaying() {
-		t.correct.Rewind()
+		if e := t.correct.Rewind(); e != nil {
+			log.Println("PlayCorrect: ", e)
+		}
 		t.correct.Play()
 	}
 }
 
 func (t *Tracks) PlayWrong() {
 	if !t.IsPlaying() {
-		t.wrong.Rewind()
+		if e := t.wrong.Rewind(); e != nil {
+			log.Println("PlayWrong: ", e)
+		}
 		t.wrong.Play()
 	}
 }
 
 func (t *Tracks) Play() {
-	if !t.IsPlaying() { t.tracks[t.curTrack].Play() }
+	if !t.IsPlaying() {
+		t.tracks[t.curTrack].Play()
+	}
 }
 
 func (t *Tracks) Pause() {
@@ -109,18 +134,50 @@ func (t *Tracks) Pause() {
 }
 
 func (t *Tracks) nextTrack() {
-	if t.curTrack < len(t.tracks)-1 { t.curTrack++ }
+	if t.curTrack < len(t.tracks)-1 {
+		t.curTrack++
+	}
 }
 
 func (t *Tracks) prevTrack() {
-	if t.curTrack > 0 { t.curTrack-- }
+	if t.curTrack > 0 {
+		t.curTrack--
+	}
 }
 
-func (t *Tracks) Next() {
-	if !t.IsPlaying() { t.tracks[t.curTrack].Play() }
+func (t *Tracks) Proceed() {
+	if !t.IsPlaying() {
+		t.tracks[t.curTrack].Play()
+	}
 	if !t.IsPlaying() {
 		t.nextTrack()
 		t.tracks[t.curTrack].Play()
+	}
+}
+
+func (t *Tracks) Next() {
+	if t.tracks == nil || len(t.tracks) == 0 { return }
+
+	t.tracks[t.curTrack].Pause()
+	if e := t.tracks[t.curTrack].Rewind(); e != nil {
+		log.Println("Prev: ", e)
+	}
+	t.nextTrack()
+	if e := t.tracks[t.curTrack].Rewind(); e != nil {
+		log.Println("Prev: ", e)
+	}
+}
+
+func (t *Tracks) Prev() {
+	if t.tracks == nil || len(t.tracks) == 0 { return }
+
+	t.tracks[t.curTrack].Pause()
+	if e := t.tracks[t.curTrack].Rewind(); e != nil {
+		log.Println("Prev: ", e)
+	}
+	t.prevTrack()
+	if e := t.tracks[t.curTrack].Rewind(); e != nil {
+		log.Println("Prev: ", e)
 	}
 }
 

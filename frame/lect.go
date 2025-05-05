@@ -4,6 +4,7 @@ import (
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/fonts"
 	"github.com/not-learning/app/graph"
+	"github.com/not-learning/app/inter"
 	"github.com/not-learning/app/tracks"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -19,7 +20,6 @@ type ex struct {
 // TODO: think if move x0, y0 here
 type Lect struct {
 	play bool
-	//Done bool
 	exs  []ex
 	n    int
 
@@ -50,15 +50,33 @@ func (l *Lect) Pause() {
 	l.Tracks.Pause()
 }
 
-func (l *Lect) next() {
+func (l *Lect) Proceed() {
+	var a, x bool
+	if l.play { a = l.exs[l.n].anim() }
+	x = l.exs[l.n].xact()
+
+	if x && a && l.play && !l.Tracks.IsPlaying() {
+		if l.n < len(l.exs)-1 { l.n++ }
+		l.Tracks.Proceed()
+	}
+}
+
+func (l *Lect) Next() {
+	l.play = false
 	if l.n < len(l.exs)-1 { l.n++ }
 	l.Tracks.Next()
+}
+
+func (l *Lect) Prev() {
+	l.play = false
+	if l.n > 0 { l.n-- }
+	l.Tracks.Prev()
 }
 
 func (l *Lect) SubWrap(sub string) []string {
 	res := []string{}
 	x1, _, x2, _ := l.b.subs[0].Rect()
-	w := float64(x2 - x1) - 20 // TODO proper sizes
+	w := float64(x2-x1) - 20 // TODO proper sizes
 	l.Font.Set(15, clrs.White)
 	res = append(res, l.Font.Wrap(sub, w)...)
 	return res
@@ -81,9 +99,7 @@ func (l *Lect) AddEx(sub, shape func(*ebiten.Image), anim, xact func() bool) {
 
 func (l *Lect) NumPadShow() { l.b.numPadShow() }
 
-func (l *Lect) NumPadHide() {
-	l.b.numPadHide()
-}
+func (l *Lect) NumPadHide() { l.b.numPadHide() }
 
 /*func (l *Lect) Touch() {}//*/
 
@@ -91,10 +107,18 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 	l.exs[l.n].shape(screen)
 	l.exs[l.n].sub(screen)
 	if l.b.npshow { graph.Draw(screen, l.b.npl...) }
-//l.b.top.WalkDown(graph.TestDraw(screen))
+	//graph.Draw(screen, l.b.prev, l.b.pause, l.b.next)
+	//l.b.top.WalkDown(graph.TestDraw(screen))
 
-	x, y := l.b.pause.MidF32()
+	l.Font.Set(75, clrs.White)
+	x, y := l.b.prev.MidF32()
+	l.Font.DrawCenter(screen, "←", x, y)
+	l.Font.Set(75, clrs.White)
+	x, y = l.b.next.MidF32()
+	l.Font.DrawCenter(screen, "→", x, y)
+
 	l.Font.Set(50, clrs.White)
+	x, y = l.b.pause.MidF32()
 	if l.play {
 		l.Font.DrawCenter(screen, "▮▮", x, y)
 	} else {
@@ -102,9 +126,16 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 	}
 }
 
+// ←→
+
 func (l *Lect) Update() {
-	var a, x bool
-	if l.play { a = l.exs[l.n].anim() }
-	x = l.exs[l.n].xact()
-	if x && a && !l.Tracks.IsPlaying() { l.next() }
+	if inter.ArrowLeft() {
+		l.Prev()
+		return
+	}
+	if inter.ArrowRight() {
+		l.Next()
+		return
+	}
+	l.Proceed()
 }

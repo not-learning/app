@@ -18,13 +18,29 @@ func Escape() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) { os.Exit(0) }
 }
 
+func Enter() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyEnter) ||
+	       inpututil.IsKeyJustPressed(ebiten.KeyNumpadEnter)
+}
+
 func Space() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeySpace)
 }
 
-func Enter() bool {
-	return inpututil.IsKeyJustPressed(ebiten.KeyEnter) ||
-	       inpututil.IsKeyJustPressed(ebiten.KeyNumpadEnter)
+func ArrowUp() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyArrowUp)
+}
+
+func ArrowDown() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyArrowDown)
+}
+
+func ArrowLeft() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft)
+}
+
+func ArrowRight() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyArrowRight)
 }
 
 func MouseL() bool {
