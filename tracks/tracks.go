@@ -101,23 +101,27 @@ func (t *Tracks) initOwnTracks() {
 	}
 }
 
-func (t *Tracks) PlayCorrect() {
+func (t *Tracks) PlayCorrect(ans bool) {
 	if !t.IsPlaying() {
 		if e := t.correct.Rewind(); e != nil {
 			log.Println("PlayCorrect: ", e)
 		}
-		t.correct.Play()
-	}
-}
-
-func (t *Tracks) PlayWrong() {
-	if !t.IsPlaying() {
 		if e := t.wrong.Rewind(); e != nil {
 			log.Println("PlayWrong: ", e)
 		}
-		t.wrong.Play()
+
+		if ans {
+			t.correct.Play()
+		} else {
+			t.wrong.Play()
+		}
 	}
 }
+
+/*func (t *Tracks) PlayWrong() {
+	if !t.IsPlaying() {
+	}
+}//*/
 
 func (t *Tracks) Play() {
 	if !t.IsPlaying() {
@@ -181,6 +185,7 @@ func (t *Tracks) Prev() {
 	}
 }
 
+// TODO deal with empty / nil t.tracks
 func (t *Tracks) IsPlaying() bool {
 	current := t.tracks[t.curTrack].IsPlaying()
 	correct := t.correct.IsPlaying()

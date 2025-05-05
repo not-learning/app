@@ -1,6 +1,6 @@
 package lobby
 
-import (
+import ("strconv"
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/frame"
 	"github.com/not-learning/app/inter"
@@ -23,6 +23,8 @@ func (l *Lobby) sub0(*ebiten.Image) {}
 func (l *Lobby) shape1(scr *ebiten.Image) {
 	l.Label(scr, "Степени", 30, 0, 300, clrs.Blue)
 	l.Label(scr, "Тригонометрия", 30, 0, 250, clrs.Blue)
+	x, y := inter.MousePos()
+	l.Label(scr, strconv.Itoa(x) +" "+ strconv.Itoa(y), 30, 0, 200, clrs.Blue)
 }
 
 func (l *Lobby) anim1() bool { return true }

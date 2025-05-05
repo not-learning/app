@@ -23,6 +23,10 @@ func Enter() bool {
 	       inpututil.IsKeyJustPressed(ebiten.KeyNumpadEnter)
 }
 
+func Backspace() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyBackspace)
+}
+
 func Space() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeySpace)
 }
@@ -44,11 +48,33 @@ func ArrowRight() bool {
 }
 
 func MouseL() bool {
-	return ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
+	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 }
 
 func MouseR() bool {
-	return ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight)
+	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight)
+}
+
+func MousePos() (x, y int) {
+	return ebiten.CursorPosition()
+}
+
+// TODO: check
+func MouseInL(x1, y1, x2, y2 float32) bool {
+	a, b := MousePos()
+	x, y := float32(a), float32(b)
+	/*x *= x
+	y *= y
+	x1 *= x1
+	y1 *= y1
+	x2 *= x2
+	y2 *= y2//*/
+	if MouseL() {
+		return x1 < x && x < x2 && y1 < y && y < y2 ||
+		       x1 > x && x > x2 && y1 > y && y > y2
+		//return x1*x1 < x*x && x*x < x2*x2 && y1*y1 < y*y && y*y < y2*y2
+	}
+	return false
 }
 
 func Number() (int, bool) {

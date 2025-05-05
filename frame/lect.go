@@ -23,19 +23,44 @@ type Lect struct {
 	exs  []ex
 	n    int
 
+	np *numpad
+
 	b *blocks
 	*fonts.Font
 	*graph.Graph
 	*tracks.Tracks
 }
 
+type numpad struct {
+	str []string
+	num []int
+
+	input int
+}
+
 func Init(x1, y1, x2, y2 float32) *Lect {
 	l := &Lect{}
-	l.Font = fonts.InitFont()
+	l.np = &numpad{}
 	l.b = initBlocks(x1, y1, x2, y2)
+	l.Font = fonts.InitFont()
 	l.Graph = graph.Init()
 	l.Graph.SetOrigin(l.b.screen.MidF32())
 	l.Tracks = tracks.Init()
+
+	l.np.str = []string{
+		"7", "8", "9",
+		"4", "5", "6",
+		"1", "2", "3",
+		"⌫", "0", "✓",
+	}
+
+	l.np.num = []int{
+		7, 8, 9,
+		4, 5, 6,
+		1, 2, 3,
+		0,
+	}
+
 	// l.play = true
 	return l
 }
@@ -103,10 +128,66 @@ func (l *Lect) NumPadHide() { l.b.numPadHide() }
 
 /*func (l *Lect) Touch() {}//*/
 
+func (l *Lect) Input() int {
+	if n, ok := inter.Number(); ok {
+		l.np.input = n + l.np.input*10
+	}
+
+	for i, v := range l.b.npl {
+		if i == 9 || i == 11 {
+			continue
+		}
+		if inter.MouseInL(v.Rect()) {
+			l.np.input = l.np.input*10 + l.np.num[i]
+		}
+	}
+	return l.np.input
+}
+
+func (l *Lect) Erase() {
+	if inter.MouseInL(l.b.npl[9].Rect()) || inter.Backspace() {
+		l.np.input /= 10
+	}
+}
+
+// todo: not very good
+func (l *Lect) Check(solution int) (correct, ok bool) {
+	correct = l.np.input == solution
+	ok = inter.MouseInL(l.b.npl[11].Rect()) || inter.Enter()
+	if ok { l.PlayCorrect(correct) }
+	return
+}
+
+/*func (l *Lect) Check(solution int) bool {
+	if inter.MouseInL(l.b.npl[11].Rect()) || inter.Enter() {
+		if l.np.input == solution {
+			l.PlayCorrect()
+			return true
+		}
+		l.PlayWrong()
+	}
+	return false
+}//*/
+
+func (l *Lect) Update() {
+	inter.Escape()
+	if inter.Space() || inter.MouseInL(l.b.pause.Rect()) { l.Pause() }
+
+	if inter.ArrowLeft() || inter.MouseInL(l.b.prev.Rect()) {
+		l.Prev()
+		return
+	}
+	if inter.ArrowRight() || inter.MouseInL(l.b.next.Rect()) {
+		l.Next()
+		return
+	}
+
+	l.Proceed()
+}
+
 func (l *Lect) Draw(screen *ebiten.Image) {
 	l.exs[l.n].shape(screen)
 	l.exs[l.n].sub(screen)
-	if l.b.npshow { graph.Draw(screen, l.b.npl...) }
 	//graph.Draw(screen, l.b.prev, l.b.pause, l.b.next)
 	//l.b.top.WalkDown(graph.TestDraw(screen))
 
@@ -124,18 +205,16 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 	} else {
 		l.Font.DrawCenter(screen, "▶", x, y)
 	}
+
+	if l.b.npshow {
+		//graph.Draw(screen, l.b.npl...)
+		for i, v := range l.b.npl {
+			x, y = v.MidF32()
+			l.Font.Set(50, clrs.White)
+			l.Font.DrawCenter(screen, l.np.str[i], x, y)
+		}
+	}
 }
 
 // ←→
-
-func (l *Lect) Update() {
-	if inter.ArrowLeft() {
-		l.Prev()
-		return
-	}
-	if inter.ArrowRight() {
-		l.Next()
-		return
-	}
-	l.Proceed()
-}
+//⬅➡⮕ ⇦ ⇨ 🡐 🡒 ⇽ ⇾ ⟵ ⟶ ⟸ ⟹ ⟻ ⟼ ⇜ ⇝ ⬿ ⤳ ↫ ↬ ⮜ ⮞ ⮪ ⮫ ◄ ► ◅ ▻

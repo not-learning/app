@@ -17,7 +17,6 @@ type Pow struct {
 	*frame.Lect
 	clrs.Clr
 
-	ans int
 	input int
 }
 
@@ -34,11 +33,7 @@ func (p *Pow) shape1(scr *ebiten.Image) {
 
 func (p *Pow) anim1() bool { return true }
 
-func (p *Pow) xact1() bool {
-	inter.Escape() //TODO: move basic xacts to frame
-	if inter.Space() { p.Pause() }
-	return true
-}
+func (p *Pow) xact1() bool { return true }
 
 // ## Ex2
 func (p *Pow) sub2() func(*ebiten.Image) {
@@ -56,17 +51,30 @@ func (p *Pow) shape2(scr *ebiten.Image) {
 
 func (p *Pow) anim2() bool { return true }
 
+// todo: not very good
 func (p *Pow) xact2cl() func() bool {
+	ans := 15
 	ret := false
 
 	return func() bool {
-		_ = p.xact1()
-		p.ans = 15
+		p.input = p.Input()
+		p.Erase()
+		correct, ok := p.Check(ans)
+		if correct && ok { ret = true }
+		return ret
+	}
+}
+
+/*func (p *Pow) xact2cl() func() bool {
+	ret := false
+
+	return func() bool {
+		ans = 15
 		if i, ok := inter.Number(); ok {
 			p.input = i + 10*p.input
 		}
 		if inter.Enter() {
-			if p.input != p.ans {
+			if p.input != ans {
 				p.PlayWrong()
 				return ret
 			}
@@ -76,7 +84,7 @@ func (p *Pow) xact2cl() func() bool {
 		if ret { p.NumPadHide() }
 		return ret
 	}
-}
+}//*/
 
 // ## Ex3
 func (p *Pow) sub3() func(*ebiten.Image) {
@@ -87,10 +95,7 @@ func (p *Pow) sub3() func(*ebiten.Image) {
 
 func (p *Pow) shape3(scr *ebiten.Image) { p.shape1(scr) }
 func (p *Pow) anim3() bool { return true }
-func (p *Pow) xact3() bool {
-	_ = p.xact1()
-	return true
-}
+func (p *Pow) xact3() bool { return true }
 
 // ## Ex4
 func (p *Pow) sub4() func(*ebiten.Image) {
@@ -108,7 +113,7 @@ func (p *Pow) anim4() bool { return true }
 func (p *Pow) xact4() bool {
 	if inter.Enter() { p.NumPadShow() }
 	if inter.Space() { p.NumPadHide() }
-	return p.xact1()
+	return true
 }
 //*/
 
