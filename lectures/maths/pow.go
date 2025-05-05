@@ -7,6 +7,7 @@ import (
 
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/frame"
+	"github.com/not-learning/app/inter"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -33,8 +34,8 @@ func (p *Pow) shape1(scr *ebiten.Image) {
 func (p *Pow) anim1() bool { return true }
 
 func (p *Pow) xact1() bool {
-	frame.Escape() //TODO: move basic xacts to frame
-	if frame.Space() { p.Pause() }
+	inter.Escape() //TODO: move basic xacts to frame
+	if inter.Space() { p.Pause() }
 	return true
 }
 
@@ -49,6 +50,7 @@ func (p *Pow) shape2(scr *ebiten.Image) {
 	s := "?"
 	if p.input > 0 { s = strconv.Itoa(p.input) }
 	p.Label(scr, "5·3 = " + s, 30, 0, 0, p.Clr)
+	p.NumPadShow()
 }
 
 func (p *Pow) anim2() bool { return true }
@@ -59,10 +61,10 @@ func (p *Pow) xact2cl() func() bool {
 	return func() bool {
 		_ = p.xact1()
 		p.ans = 15
-		if i, ok := frame.Number(); ok {
+		if i, ok := inter.Number(); ok {
 			p.input = i + 10*p.input
 		}
-		if frame.Enter() {
+		if inter.Enter() {
 			if p.input != p.ans {
 				p.PlayWrong()
 				return ret
@@ -70,6 +72,7 @@ func (p *Pow) xact2cl() func() bool {
 			p.PlayCorrect()
 			ret = true
 		}
+		if ret { p.NumPadHide() }
 		return ret
 	}
 }
@@ -102,7 +105,9 @@ func (p *Pow) shape4(scr *ebiten.Image) {
 func (p *Pow) anim4() bool { return true }
 
 func (p *Pow) xact4() bool {
+	if inter.Enter() { p.NumPadShow() }
 	_ = p.xact1()
+	if inter.Space() { p.NumPadHide() }
 	return true
 }
 //*/

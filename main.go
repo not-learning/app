@@ -24,10 +24,12 @@ func (g *game) Update() error {
 	return nil
 }
 
-func (g *game) Draw(scr *ebiten.Image) { g.Lobby.Draw(scr) }
+func (g *game) Draw(scr *ebiten.Image) {
+	g.Lobby.Draw(scr)
+}
 
 func (g *game) Layout(outW, outH int) (int, int) {
-	scale := ebiten.DeviceScaleFactor()
+	scale := ebiten.Monitor().DeviceScaleFactor()
 	canvasW := int(math.Ceil(float64(outW) * scale))
 	canvasH := int(math.Ceil(float64(outH) * scale))
 	return canvasW, canvasH

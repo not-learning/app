@@ -6,6 +6,7 @@ import (
 
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/frame"
+	"github.com/not-learning/app/inter"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -51,8 +52,8 @@ func (t *Trig) anim1() bool {
 }
 
 func (t *Trig) xact1() bool {
-	frame.Escape()
-	if frame.Space() { t.Pause() }
+	inter.Escape()
+	if inter.Space() { t.Pause() }
 	return true
 }
 

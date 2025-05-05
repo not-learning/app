@@ -32,7 +32,7 @@ type Lect struct {
 func Init(x1, y1, x2, y2 float32) *Lect {
 	l := &Lect{}
 	l.Font = fonts.InitFont()
-	l.b = InitBlocks(x1, y1, x2, y2)
+	l.b = initBlocks(x1, y1, x2, y2)
 	l.Graph = graph.Init()
 	l.Graph.SetOrigin(l.b.screen.MidF32())
 	l.Tracks = tracks.Init()
@@ -50,7 +50,7 @@ func (l *Lect) Pause() {
 	l.Tracks.Pause()
 }
 
-func (l *Lect) Next() {
+func (l *Lect) next() {
 	if l.n < len(l.exs)-1 { l.n++ }
 	l.Tracks.Next()
 }
@@ -79,17 +79,19 @@ func (l *Lect) AddEx(sub, shape func(*ebiten.Image), anim, xact func() bool) {
 	l.exs = append(l.exs, x)
 }
 
+func (l *Lect) NumPadShow() { l.b.numPadShow() }
+
+func (l *Lect) NumPadHide() {
+	l.b.numPadHide()
+}
+
 /*func (l *Lect) Touch() {}//*/
 
 func (l *Lect) Draw(screen *ebiten.Image) {
 	l.exs[l.n].shape(screen)
 	l.exs[l.n].sub(screen)
-
-	/*for i, v := range l.exs[l.n].sub {
-		x, y, _, _ := l.b.subs[i].Rect()
-		l.Font.Set(15, clrs.White)
-		l.Font.Draw(screen, v, x, y)
-	}//*/
+	graph.Draw(screen, l.b.npl...)
+//l.b.top.WalkDown(graph.TestDraw(screen))
 
 	x, y := l.b.pause.MidF32()
 	l.Font.Set(50, clrs.White)
@@ -98,13 +100,11 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 	} else {
 		l.Font.DrawCenter(screen, "▶", x, y)
 	}
-
-	//l.b.top.WalkUp(graph.TestDraw(screen))
 }
 
 func (l *Lect) Update() {
-	x := l.exs[l.n].xact()
-	if !l.play { return }
-	a := l.exs[l.n].anim()
-	if x && a && !l.Tracks.IsPlaying() { l.Next() }
+	var a, x bool
+	if l.play { a = l.exs[l.n].anim() }
+	x = l.exs[l.n].xact()
+	if x && a && !l.Tracks.IsPlaying() { l.next() }
 }

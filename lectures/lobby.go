@@ -3,6 +3,7 @@ package lobby
 import (
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/frame"
+	"github.com/not-learning/app/inter"
 	"github.com/not-learning/app/lectures/maths"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -27,8 +28,8 @@ func (l *Lobby) shape1(scr *ebiten.Image) {
 func (l *Lobby) anim1() bool { return true }
 
 func (l *Lobby) xact1() bool {
-	frame.Escape()
-	if i, ok := frame.Number(); ok { l.int = i }
+	inter.Escape()
+	if i, ok := inter.Number(); ok { l.int = i }
 	return true
 }
 

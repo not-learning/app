@@ -1,4 +1,4 @@
-package frame
+package inter
 
 import (
 	"os"
@@ -6,6 +6,13 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
+
+/*type Inter struct {}
+
+func Init(x1, y1, x2, y2 float32) *Inter {
+	in := &Inter{}
+	return in
+}//*/
 
 func Escape() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) { os.Exit(0) }
@@ -54,3 +61,4 @@ func Number() (int, bool) {
 	return 0, false
 }
 
+//func (in *Inter) NumPad() {}
