@@ -13,19 +13,20 @@ type blocks struct {
 	subs   []*lmnts.Lmnt
 	pause  *lmnts.Lmnt
 
-	npl []*lmnts.Lmnt
-	np  *lmnts.Lmnt
-	nph float32
+	npl    []*lmnts.Lmnt
+	np     *lmnts.Lmnt
+	npshow bool
+	nph    float32
 }
 
 func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	b := &blocks{}
 	b.nph = 350
-	b.monh = y2 - y1
+	//b.monh = y2 - y1
 
 	b.top = lmnts.New()
 	b.top.Name = "top"
-	b.top.SetRect(x1, y1, x2, y2+b.nph)
+	b.top.SetRect(x1, y1, x2, y2)
 	b.screen = lmnts.New()
 	b.screen.Name = "screen"
 	b.top.Add(b.screen)
@@ -65,7 +66,6 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	in.Name = "in"
 	b.np.AddTBLR(30, 30, 30, 30, in)
 	in.Grid(3, 20, b.npl...)
-	b.top.Add(b.np)
 
 	b.top.DoAll()
 
@@ -73,6 +73,22 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 }
 
 func (b *blocks) numPadShow() {
+	if !b.npshow {
+		b.npshow = true
+		b.top.Add(b.np)
+		b.top.DoAll()
+	}
+}
+
+func (b *blocks) numPadHide() {
+	if b.npshow {
+		b.npshow = false
+		b.top.Del(b.np)
+		b.top.DoAll()
+	}
+}
+
+/*func (b *blocks) numPadShow() {
 	x1, y1, x2, y2 := b.top.Rect()
 	if y2-y1 > b.monh+b.nph/2 {
 		b.top.SetRect(x1, y1, x2, y2-b.nph)
@@ -86,4 +102,4 @@ func (b *blocks) numPadHide() {
 		b.top.SetRect(x1, y1, x2, y2+b.nph)
 		b.top.DoAll()
 	}
-}
+}//*/

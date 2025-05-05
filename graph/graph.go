@@ -144,6 +144,7 @@ func (g *Graph) PolyFull(scr *ebiten.Image, crds []float32, clr clrs.Clr) {
 	scr.DrawTriangles(g.vertices, g.indices, g.tr, trop)
 }
 
+// TODO update with screen
 func (g *Graph) Label(scr *ebiten.Image, text string, size, x, y float32, clr clrs.Clr) {
 	g.Font.Set(float64(size), clr)
 	g.Font.DrawCenter(scr, text, x+g.x0, -y+g.y0)

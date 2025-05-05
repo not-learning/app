@@ -90,7 +90,7 @@ func (l *Lect) NumPadHide() {
 func (l *Lect) Draw(screen *ebiten.Image) {
 	l.exs[l.n].shape(screen)
 	l.exs[l.n].sub(screen)
-	graph.Draw(screen, l.b.npl...)
+	if l.b.npshow { graph.Draw(screen, l.b.npl...) }
 //l.b.top.WalkDown(graph.TestDraw(screen))
 
 	x, y := l.b.pause.MidF32()
