@@ -81,7 +81,7 @@ func (l *Lect) Proceed() {
 	if l.play { a = l.exs[l.n].anim() }
 	x = l.exs[l.n].xact()
 
-	if x && a && l.play && !l.Tracks.IsPlaying() {
+	if pl, ok := l.Tracks.IsPlaying(); x && a && l.play && !pl && ok {
 		if l.n < len(l.exs)-1 {
 			l.exs[l.n].zero()
 			l.n++
