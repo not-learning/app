@@ -4,6 +4,7 @@ import (
 	//"errors"
 	"log"
 	"math"
+	//"slices"
 )
 
 func Polygon(n int, x, y, rad, ang float32) []float32 {
@@ -33,24 +34,39 @@ func AnimLine(x1, y1, x2, y2 float32) (c, s float32) {
 func AnimPoly(crds []float32) func(float32) []float32 {
 	if len(crds) < 4 { log.Fatal("frame.AnimPoly: not enough coordinates") }
 	i := 0
-	c, s := AnimLine(crds[i], crds[i+1], crds[i+2], crds[i+3])
+	x1, y1, x2, y2 := crds[i], crds[i+1], crds[i+2], crds[i+3]
+	c, s := AnimLine(x1, y1, x2, y2)
 	var dx, dy float32 = 0, 0
-	ll := []float32{
-		crds[i], crds[i+1],
-		crds[i], crds[i+1],
-	}
+	ll := []float32{x1, y1, x1, y1}
 	return func(speed float32) []float32 {
+		if speed < 0 {
+			i, dx, dy = 0, 0, 0
+			ll = []float32{crds[i], crds[i+1], crds[i], crds[i+1]}
+			return ll
+		}
+
 		if i > len(crds)-4 { return crds }
-		c, s = AnimLine(crds[i], crds[i+1], crds[i+2], crds[i+3])
+		x1, y1, x2, y2 = crds[i], crds[i+1], crds[i+2], crds[i+3]
+		c, s = AnimLine(x1, y1, x2, y2)
 		dx += c * speed
 		dy += s * speed
-		ll[i+2], ll[i+3] = dx + crds[i], dy + crds[i+1]
-		if dx*dx >= (crds[i+2]-crds[i])*(crds[i+2]-crds[i]) &&
-		   dy*dy >= (crds[i+3]-crds[i+1])*(crds[i+3]-crds[i+1]) {
-		   	ll[i+2], ll[i+3] = crds[i+2], crds[i+3]
-		   	dx, dy = 0, 0
-		   	ll = append(ll, crds[i+2], crds[i+3])
-		   	i += 2
+		x, y := dx + x1, dy + y1
+		ll[i+2], ll[i+3] = x, y
+
+		/*if !(x > x1 && x < x2 ||
+		     x > x2 && x < x1 ||
+		     y > y1 && y < y2 ||
+		     y > y2 && y < y1) {//*/
+
+		if !(x1 < x2 && x < x2 ||
+		     x1 > x2 && x > x2 ||
+		     y1 < y2 && y < y2 ||
+		     y1 > y2 && y > y2) {
+
+			   	ll[i+2], ll[i+3] = x2, y2
+			   	dx, dy = 0, 0
+			   	ll = append(ll, x2, y2)
+			   	i += 2
 		}
 		return ll
 	}

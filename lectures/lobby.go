@@ -34,6 +34,7 @@ func (l *Lobby) xact1() bool {
 	if i, ok := inter.Number(); ok { l.int = i }
 	return true
 }
+func (l *Lobby) zero1() {}
 
 func (l *Lobby) Update() {
 	if l.int == 0 { l.Lect.Update() }
@@ -52,7 +53,7 @@ func (l *Lobby) Draw(scr *ebiten.Image) {
 func Init(x1, y1, x2, y2 float32) *Lobby {
 	l := &Lobby{}
 	l.Lect = frame.Init(x1, y1, x2, y2)
-	l.AddEx(l.sub0, l.shape1, l.anim1, l.xact1)
+	l.AddEx(l.sub0, l.shape1, l.anim1, l.xact1, l.zero1)
 
 	l.pow = maths.InitPow(x1, y1, x2, y2)
 	l.trig = maths.InitTrig(x1, y1, x2, y2)

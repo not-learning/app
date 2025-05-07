@@ -6,7 +6,7 @@ import (
 
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/frame"
-	"github.com/not-learning/app/inter"
+	//"github.com/not-learning/app/inter"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -43,7 +43,7 @@ func (t *Trig) shape1(scr *ebiten.Image) {
 }//*/
 
 func (t *Trig) anim1() bool {
-	t.polygon = t.animP(10)
+	t.polygon = t.animP(7)
 	l := len(t.polygon)
 	t.x, t.y = t.polygon[l-2], t.polygon[l-1]
 
@@ -52,11 +52,12 @@ func (t *Trig) anim1() bool {
 	return done
 }
 
-func (t *Trig) xact1() bool {
-	inter.Escape()
-	if inter.Space() { t.Pause() }
-	return true
+func (t *Trig) xact1() bool { return true }
+func (t *Trig) zero1() {
+	t.polygon = t.animP(-1)
+	t.x, t.y = t.polygon[0], t.polygon[1]
 }
+
 
 // ## Ex2
 func (t *Trig) sub2() func(*ebiten.Image) {
@@ -71,17 +72,17 @@ func (t *Trig) shape2(scr *ebiten.Image) {
 }
 
 func (t *Trig) anim2() bool {
-	done := false
-	t.a1 += 0.2
+	t.a1 += 0.1
 	t.xy()
-	if t.a1 > 2*2*math.Pi {
-		t.a1 = 0
-		done = true
-	}
-	return done
+	if t.a1 > 2*2*math.Pi { return true }
+	return false
 }
 
-func (t *Trig) xact2() bool { return t.xact1() }
+func (t *Trig) xact2() bool { return true }
+func (t *Trig) zero2() {
+	t.a1 = 0
+	t.x, t.y = 0, 0
+}
 
 // ## Ex3
 func (t *Trig) sub3() func(*ebiten.Image) {
@@ -95,7 +96,8 @@ func (t *Trig) shape3(scr *ebiten.Image) {
 }
 
 func (t *Trig) anim3() bool { return true }
-func (t *Trig) xact3() bool { return t.xact1() }
+func (t *Trig) xact3() bool { return true }
+func (t *Trig) zero3() {}
 
 // ## Ex4
 func (t *Trig) sub4() func(*ebiten.Image) {
@@ -111,12 +113,16 @@ func (t *Trig) shape4(scr *ebiten.Image) {
 
 func (t *Trig) anim4() bool {
 	t.a1 += 0.2
-	if t.a1 >= 2*math.Pi { t.a1 = 2*math.Pi }
-	t.xy()//*/
-	return true
+	if t.a1 >= 2*2*math.Pi {
+		t.a1 = 2*2*math.Pi
+		return true
+	}
+	t.xy()
+	return false
 }
 
-func (t *Trig) xact4() bool { return t.xact1() }
+func (t *Trig) xact4() bool { return true }
+func (t *Trig) zero4() { t.a1 = 0 }
 
 
 // TODO proper tracks
@@ -141,10 +147,10 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 
 	t.animP = frame.AnimPoly(star[:len(star)-2])
 
-	t.AddEx(t.sub1(), t.shape1, t.anim1, t.xact1)
-	t.AddEx(t.sub2(), t.shape2, t.anim2, t.xact2)
-	t.AddEx(t.sub3(), t.shape3, t.anim3, t.xact3)
-	t.AddEx(t.sub4(), t.shape4, t.anim4, t.xact4)
+	t.AddEx(t.sub1(), t.shape1, t.anim1, t.xact1, t.zero1)
+	t.AddEx(t.sub2(), t.shape2, t.anim2, t.xact2, t.zero2)
+	t.AddEx(t.sub3(), t.shape3, t.anim3, t.xact3, t.zero3)
+	t.AddEx(t.sub4(), t.shape4, t.anim4, t.xact4, t.zero4)
 
 	t.Clr = clrs.Green
 	return t

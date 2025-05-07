@@ -7,10 +7,6 @@ import (
 	"path"
 	"strings"
 
-	//"strconv"
-
-	//"github.com/hajimehoshi/ebiten"
-	//"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 )
@@ -38,7 +34,6 @@ func Init() *Tracks {
 		t.context = audio.CurrentContext()
 	}
 	t.initOwnTracks()
-	//t.initFiles(dir, files)
 	return t
 }
 
@@ -47,7 +42,6 @@ func (t *Tracks) InitFiles(dir string, files embed.FS) {
 	if err != nil {
 		log.Fatal("initFiles: ", err)
 	}
-	//t.tracks = make([]*audio.Player, len(fnames))
 
 	for _, v := range fnames {
 		if !strings.HasSuffix(v.Name(), "ogg") {
@@ -72,8 +66,6 @@ func (t *Tracks) InitFiles(dir string, files embed.FS) {
 } //*/
 
 func (t *Tracks) initOwnTracks() {
-	// t.initFiles("pow")
-
 	f, err := ansFiles.ReadFile("answers/correct/1.ogg")
 	if err != nil {
 		log.Fatal("Audio.Init() ReadFile: ", err)
@@ -143,6 +135,12 @@ func (t *Tracks) nextTrack() {
 	}
 }
 
+func (t *Tracks) switchTrack(n int) {
+	if n >= 0 && n < len(t.tracks) {
+		t.curTrack = n
+	}
+}
+
 func (t *Tracks) prevTrack() {
 	if t.curTrack > 0 {
 		t.curTrack--
@@ -167,9 +165,16 @@ func (t *Tracks) Next() {
 		log.Println("Prev: ", e)
 	}
 	t.nextTrack()
+}
+
+func (t *Tracks) Switch(n int) {
+	if t.tracks == nil || len(t.tracks) == 0 { return }
+
+	t.tracks[t.curTrack].Pause()
 	if e := t.tracks[t.curTrack].Rewind(); e != nil {
 		log.Println("Prev: ", e)
 	}
+	t.switchTrack(n)
 }
 
 func (t *Tracks) Prev() {
@@ -180,9 +185,6 @@ func (t *Tracks) Prev() {
 		log.Println("Prev: ", e)
 	}
 	t.prevTrack()
-	if e := t.tracks[t.curTrack].Rewind(); e != nil {
-		log.Println("Prev: ", e)
-	}
 }
 
 // TODO deal with empty / nil t.tracks

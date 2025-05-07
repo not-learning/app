@@ -15,6 +15,7 @@ type ex struct {
 	shape func(*ebiten.Image)
 	anim  func() bool
 	xact  func() bool
+	zero  func()
 }
 
 // TODO: think if move x0, y0 here
@@ -81,21 +82,28 @@ func (l *Lect) Proceed() {
 	x = l.exs[l.n].xact()
 
 	if x && a && l.play && !l.Tracks.IsPlaying() {
-		if l.n < len(l.exs)-1 { l.n++ }
+		if l.n < len(l.exs)-1 {
+			l.exs[l.n].zero()
+			l.n++
+		}
 		l.Tracks.Proceed()
 	}
 }
 
 func (l *Lect) Next() {
 	l.play = false
+	l.exs[l.n].zero()
 	if l.n < len(l.exs)-1 { l.n++ }
-	l.Tracks.Next()
+	l.exs[l.n].zero()
+	l.Tracks.Switch(l.n)
 }
 
 func (l *Lect) Prev() {
 	l.play = false
+	l.exs[l.n].zero()
 	if l.n > 0 { l.n-- }
-	l.Tracks.Prev()
+	l.exs[l.n].zero()
+	l.Tracks.Switch(l.n)
 }
 
 func (l *Lect) SubWrap(sub string) []string {
@@ -117,8 +125,8 @@ func (l *Lect) SubDraw(sub []string) func(*ebiten.Image) {
 	}
 }
 
-func (l *Lect) AddEx(sub, shape func(*ebiten.Image), anim, xact func() bool) {
-	x := ex{sub: sub, shape: shape, anim: anim, xact: xact}
+func (l *Lect) AddEx(sub, shape func(*ebiten.Image), anim, xact func() bool, zero func()) {
+	x := ex{sub: sub, shape: shape, anim: anim, xact: xact, zero: zero}
 	l.exs = append(l.exs, x)
 }
 

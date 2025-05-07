@@ -8,7 +8,6 @@ import (
 
 type blocks struct {
 	top    *lmnts.Lmnt
-	monh   float32
 	screen *lmnts.Lmnt
 	subs   []*lmnts.Lmnt
 	prev   *lmnts.Lmnt
@@ -24,7 +23,6 @@ type blocks struct {
 func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	b := &blocks{}
 	b.nph = 350
-	//b.monh = y2 - y1
 
 	b.top = lmnts.New()
 	b.top.Name = "top"
@@ -55,7 +53,6 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	pl.GapsAround(30, b.prev, b.pause, b.next)
 	b.top.Add(pl)
 
-
 	// ## NumPad init
 	b.np = lmnts.New()
 	b.np.Name = "np"
@@ -80,7 +77,7 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 func (b *blocks) numPadShow() {
 	if !b.npshow {
 		b.npshow = true
-		b.top.Add(b.np)
+		b.top.AddN(-2, b.np)
 		b.top.DoAll()
 	}
 }
@@ -92,19 +89,3 @@ func (b *blocks) numPadHide() {
 		b.top.DoAll()
 	}
 }
-
-/*func (b *blocks) numPadShow() {
-	x1, y1, x2, y2 := b.top.Rect()
-	if y2-y1 > b.monh+b.nph/2 {
-		b.top.SetRect(x1, y1, x2, y2-b.nph)
-		b.top.DoAll()
-	}
-}
-
-func (b *blocks) numPadHide() {
-	x1, y1, x2, y2 := b.top.Rect()
-	if y2-y1 < b.monh+b.nph/2 {
-		b.top.SetRect(x1, y1, x2, y2+b.nph)
-		b.top.DoAll()
-	}
-}//*/
