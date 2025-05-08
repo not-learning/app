@@ -177,7 +177,8 @@ func (l *Lect) Check(solution int) (correct, ok bool) {
 	return false
 }//*/
 
-func (l *Lect) Update() {
+func (l *Lect) Update(scrW, scrH int) {
+	l.b.update(scrW, scrH)
 	inter.Escape()
 	if inter.Space() || inter.MouseInL(l.b.pause.Rect()) { l.Pause() }
 

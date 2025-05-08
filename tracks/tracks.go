@@ -165,7 +165,6 @@ func (t *Tracks) Prev() {
 	t.prevTrack()
 }
 
-// TODO deal with empty / nil t.tracks
 func (t *Tracks) IsPlaying() (pl, ok bool) {
 	if t.tracks == nil || len(t.tracks) == 0 {
 		return false, false

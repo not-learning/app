@@ -74,6 +74,12 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	return b
 }
 
+func (b *blocks) update(scrW, scrH int) {
+	b.top.Update(scrW, scrH)
+	//if b.np != nil { b.np.Update(scrW, scrH) }
+}
+
+// TODO show / hide gets called quite often?
 func (b *blocks) numPadShow() {
 	if !b.npshow {
 		b.npshow = true
