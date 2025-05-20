@@ -74,8 +74,8 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	return b
 }
 
-func (b *blocks) update(scrW, scrH int) {
-	b.top.Update(scrW, scrH)
+func (b *blocks) update(scrW, scrH int, ratW, ratH float32) {
+	b.top.Update(scrW, scrH, ratW, ratH)
 	//if b.np != nil { b.np.Update(scrW, scrH) }
 }
 

@@ -36,9 +36,30 @@ func Init() *Graph {
 	return g
 }
 
+func (g *Graph) Update(scrW, scrH int, ratW, ratH float32) {}
+
+// TODO update with screen
+func (g *Graph) Label(
+	scr *ebiten.Image,
+	text string,
+	size, x, y float32,
+	clr clrs.Clr,
+) (x1, y1, x2, y2 float32) {
+	x, y = x+g.x0, -y+g.y0
+	g.Font.DrawCenter(scr, text, size, x, y, clr)
+	w, h := g.Font.TextSize(text)
+	x1, x2 = x-float32(w/2), x+float32(w/2)
+	y1, y2 = y-float32(h/2), y+float32(h/2)
+	return
+}
+
 func (g *Graph) SetOrigin(x0, y0 float32) { g.x0, g.y0 = x0, y0 }
 
-func (g *Graph) CirEmp(scr *ebiten.Image, x, y, r float32, clr clrs.Clr) {
+func (g *Graph) CirEmp(
+	scr *ebiten.Image,
+	x, y, r float32,
+	clr clrs.Clr,
+) {
 	vector.DrawFilledCircle(scr, x+g.x0, -y+g.y0, r, clrs.Black, true)
 	vector.StrokeCircle(scr, x+g.x0, -y+g.y0, r, 1.5, clr, true)
 }
@@ -142,12 +163,6 @@ func (g *Graph) PolyFull(scr *ebiten.Image, crds []float32, clr clrs.Clr) {
 	trop.FillRule = ebiten.FillRuleNonZero
 
 	scr.DrawTriangles(g.vertices, g.indices, g.tr, trop)
-}
-
-// TODO update with screen
-func (g *Graph) Label(scr *ebiten.Image, text string, size, x, y float32, clr clrs.Clr) {
-	g.Font.Set(float64(size), clr)
-	g.Font.DrawCenter(scr, text, x+g.x0, -y+g.y0)
 }
 
 // ### Shapes ###

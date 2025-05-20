@@ -18,7 +18,6 @@ type ex struct {
 	zero  func()
 }
 
-// TODO: think if move x0, y0 here
 type Lect struct {
 	play bool
 	exs  []ex
@@ -59,7 +58,7 @@ func Init(x1, y1, x2, y2 float32) *Lect {
 		7, 8, 9,
 		4, 5, 6,
 		1, 2, 3,
-		0,
+		0, 0,
 	}
 
 	// l.play = true
@@ -81,7 +80,8 @@ func (l *Lect) Proceed() {
 	if l.play { a = l.exs[l.n].anim() }
 	x = l.exs[l.n].xact()
 
-	if pl, ok := l.Tracks.IsPlaying(); x && a && l.play && !pl && ok {
+	if pl, ok := l.Tracks.IsPlaying();
+	x && a && l.play && !pl && ok {
 		if l.n < len(l.exs)-1 {
 			l.exs[l.n].zero()
 			l.n++
@@ -110,8 +110,7 @@ func (l *Lect) SubWrap(sub string) []string {
 	res := []string{}
 	x1, _, x2, _ := l.b.subs[0].Rect()
 	w := float64(x2-x1) - 20 // TODO proper sizes
-	l.Font.Set(15, clrs.White)
-	res = append(res, l.Font.Wrap(sub, w)...)
+	res = append(res, l.Font.Wrap(15, w, sub)...)
 	return res
 }
 
@@ -119,13 +118,16 @@ func (l *Lect) SubDraw(sub []string) func(*ebiten.Image) {
 	return func(scr *ebiten.Image) {
 		for i, v := range sub {
 			x, y, _, _ := l.b.subs[i].Rect()
-			l.Font.Set(15, clrs.White)
-			l.Font.Draw(scr, v, x, y)
+			l.Font.Draw(scr, v, 15, x, y, clrs.White)
 		}
 	}
 }
 
-func (l *Lect) AddEx(sub, shape func(*ebiten.Image), anim, xact func() bool, zero func()) {
+func (l *Lect) AddEx(
+	sub, shape func(*ebiten.Image), 
+	anim, xact func() bool,
+	zero func(),
+) {
 	x := ex{sub: sub, shape: shape, anim: anim, xact: xact, zero: zero}
 	l.exs = append(l.exs, x)
 }
@@ -142,10 +144,8 @@ func (l *Lect) Input() int {
 	}
 
 	for i, v := range l.b.npl {
-		if i == 9 || i == 11 {
-			continue
-		}
-		if inter.MouseInL(v.Rect()) {
+		if i == 9 || i == 11 { continue }
+		if inter.MouseLIn(v.Rect()) {
 			l.np.input = l.np.input*10 + l.np.num[i]
 		}
 	}
@@ -153,7 +153,7 @@ func (l *Lect) Input() int {
 }
 
 func (l *Lect) Erase() {
-	if inter.MouseInL(l.b.npl[9].Rect()) || inter.Backspace() {
+	if inter.MouseLIn(l.b.npl[9].Rect()) || inter.Backspace() {
 		l.np.input /= 10
 	}
 }
@@ -161,13 +161,13 @@ func (l *Lect) Erase() {
 // todo: not very good
 func (l *Lect) Check(solution int) (correct, ok bool) {
 	correct = l.np.input == solution
-	ok = inter.MouseInL(l.b.npl[11].Rect()) || inter.Enter()
+	ok = inter.MouseLIn(l.b.npl[11].Rect()) || inter.Enter()
 	if ok { l.PlayCorrect(correct) }
 	return
 }
 
 /*func (l *Lect) Check(solution int) bool {
-	if inter.MouseInL(l.b.npl[11].Rect()) || inter.Enter() {
+	if inter.MouseLIn(l.b.npl[11].Rect()) || inter.Enter() {
 		if l.np.input == solution {
 			l.PlayCorrect()
 			return true
@@ -177,16 +177,17 @@ func (l *Lect) Check(solution int) (correct, ok bool) {
 	return false
 }//*/
 
-func (l *Lect) Update(scrW, scrH int) {
-	l.b.update(scrW, scrH)
+func (l *Lect) Update(scrW, scrH int, ratW, ratH float32) {
+	l.b.update(scrW, scrH, ratW, ratH)
+	l.Font.Update(scrW, scrH, ratW, ratH)
 	inter.Escape()
-	if inter.Space() || inter.MouseInL(l.b.pause.Rect()) { l.Pause() }
+	if inter.Space() || inter.MouseLIn(l.b.pause.Rect()) { l.Pause() }
 
-	if inter.ArrowLeft() || inter.MouseInL(l.b.prev.Rect()) {
+	if inter.ArrowLeft() || inter.MouseLIn(l.b.prev.Rect()) {
 		l.Prev()
 		return
 	}
-	if inter.ArrowRight() || inter.MouseInL(l.b.next.Rect()) {
+	if inter.ArrowRight() || inter.MouseLIn(l.b.next.Rect()) {
 		l.Next()
 		return
 	}
@@ -200,27 +201,23 @@ func (l *Lect) Draw(screen *ebiten.Image) {
 	//graph.Draw(screen, l.b.prev, l.b.pause, l.b.next)
 	//l.b.top.WalkDown(graph.TestDraw(screen))
 
-	l.Font.Set(75, clrs.White)
 	x, y := l.b.prev.MidF32()
-	l.Font.DrawCenter(screen, "←", x, y)
-	l.Font.Set(75, clrs.White)
+	l.Font.DrawCenter(screen, "←", 75, x, y, clrs.White)
 	x, y = l.b.next.MidF32()
-	l.Font.DrawCenter(screen, "→", x, y)
+	l.Font.DrawCenter(screen, "→", 75, x, y, clrs.White)
 
-	l.Font.Set(50, clrs.White)
 	x, y = l.b.pause.MidF32()
 	if l.play {
-		l.Font.DrawCenter(screen, "▮▮", x, y)
+		l.Font.DrawCenter(screen, "▮▮", 50, x, y, clrs.White)
 	} else {
-		l.Font.DrawCenter(screen, "▶", x, y)
+		l.Font.DrawCenter(screen, "▶", 50, x, y, clrs.White)
 	}
 
 	if l.b.npshow {
 		//graph.Draw(screen, l.b.npl...)
 		for i, v := range l.b.npl {
 			x, y = v.MidF32()
-			l.Font.Set(50, clrs.White)
-			l.Font.DrawCenter(screen, l.np.str[i], x, y)
+			l.Font.DrawCenter(screen, l.np.str[i], 50, x, y, clrs.White)
 		}
 	}
 }

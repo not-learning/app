@@ -60,7 +60,7 @@ func MousePos() (x, y int) {
 }
 
 // TODO: check
-func MouseInL(x1, y1, x2, y2 float32) bool {
+func MouseLIn(x1, y1, x2, y2 float32) bool {
 	a, b := MousePos()
 	x, y := float32(a), float32(b)
 	/*x *= x
