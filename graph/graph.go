@@ -7,7 +7,6 @@ import (
 
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/fonts"
-	//"github.com/not-learning/app/vec"
 
 	"github.com/not-learning/lmnts"
 
@@ -36,7 +35,7 @@ func Init() *Graph {
 	return g
 }
 
-func (g *Graph) Update(scrW, scrH int, ratW, ratH float32) {}
+func (g *Graph) Update(scrW, scrH int, ratW, ratH float32) {} // TODO TODO TODO
 
 // TODO update with screen
 func (g *Graph) Label(
@@ -44,12 +43,12 @@ func (g *Graph) Label(
 	text string,
 	size, x, y float32,
 	clr clrs.Clr,
-) (x1, y1, x2, y2 float32) {
+) /*(x1, y1, x2, y2 float32)//*/ {
 	x, y = x+g.x0, -y+g.y0
 	g.Font.DrawCenter(scr, text, size, x, y, clr)
-	w, h := g.Font.TextSize(text)
+	/*w, h := g.Font.TextSize(text)
 	x1, x2 = x-float32(w/2), x+float32(w/2)
-	y1, y2 = y-float32(h/2), y+float32(h/2)
+	y1, y2 = y-float32(h/2), y+float32(h/2)*/
 	return
 }
 

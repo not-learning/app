@@ -1,67 +1,65 @@
 package inter
 
 import (
-	"os"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-/*type Inter struct {}
+type Inter struct {}
 
-func Init(x1, y1, x2, y2 float32) *Inter {
+/*func Init(x1, y1, x2, y2 float32) *Inter {
 	in := &Inter{}
 	return in
 }//*/
 
-func Escape() {
-	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) { os.Exit(0) }
+func (in Inter) Escape() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyEscape)
 }
 
-func Enter() bool {
+func (in Inter) Enter() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyEnter) ||
 	       inpututil.IsKeyJustPressed(ebiten.KeyNumpadEnter)
 }
 
-func Backspace() bool {
+func (in Inter) Backspace() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyBackspace)
 }
 
-func Space() bool {
+func (in Inter) Space() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeySpace)
 }
 
-func ArrowUp() bool {
+func (in Inter) ArrowUp() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyArrowUp)
 }
 
-func ArrowDown() bool {
+func (in Inter) ArrowDown() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyArrowDown)
 }
 
-func ArrowLeft() bool {
+func (in Inter) ArrowLeft() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft)
 }
 
-func ArrowRight() bool {
+func (in Inter) ArrowRight() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyArrowRight)
 }
 
-func MouseL() bool {
+func (in Inter) MouseL() bool {
 	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 }
 
-func MouseR() bool {
+func (in Inter) MouseR() bool {
 	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight)
 }
 
-func MousePos() (x, y int) {
+func (in Inter) MousePos() (x, y int) {
 	return ebiten.CursorPosition()
 }
 
 // TODO: check
-func MouseLIn(x1, y1, x2, y2 float32) bool {
-	a, b := MousePos()
+func (in Inter) MouseLIn(x1, y1, x2, y2 float32) bool {
+	a, b := in.MousePos()
 	x, y := float32(a), float32(b)
 	/*x *= x
 	y *= y
@@ -69,7 +67,7 @@ func MouseLIn(x1, y1, x2, y2 float32) bool {
 	y1 *= y1
 	x2 *= x2
 	y2 *= y2//*/
-	if MouseL() {
+	if in.MouseL() {
 		return x1 < x && x < x2 && y1 < y && y < y2 ||
 		       x1 > x && x > x2 && y1 > y && y > y2
 		//return x1*x1 < x*x && x*x < x2*x2 && y1*y1 < y*y && y*y < y2*y2
@@ -77,7 +75,7 @@ func MouseLIn(x1, y1, x2, y2 float32) bool {
 	return false
 }
 
-func Number() (int, bool) {
+func (in Inter) Number() (int, bool) {
 	if inpututil.IsKeyJustPressed(ebiten.KeyDigit0) {return 0, true}
 	if inpututil.IsKeyJustPressed(ebiten.KeyDigit1) {return 1, true}
 	if inpututil.IsKeyJustPressed(ebiten.KeyDigit2) {return 2, true}

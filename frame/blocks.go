@@ -10,12 +10,17 @@ type blocks struct {
 	top    *lmnts.Lmnt
 	screen *lmnts.Lmnt
 	subs   []*lmnts.Lmnt
-	prev   *lmnts.Lmnt
-	pause  *lmnts.Lmnt
-	next   *lmnts.Lmnt
 
-	npl    []*lmnts.Lmnt
+// Playback controls
+	pbc *lmnts.Lmnt
+	prev  *lmnts.Lmnt
+	pause *lmnts.Lmnt
+	next  *lmnts.Lmnt
+	pbcshow bool
+
+// Numpad
 	np     *lmnts.Lmnt
+	npl    []*lmnts.Lmnt
 	npshow bool
 	nph    float32
 }
@@ -41,19 +46,20 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	si.Add(b.subs...)
 	b.top.Add(sl)
 
-	pl := lmnts.New()
-	pl.Name = "pl"
-	pl.SetRow()
-	pl.SetSize(0, 100)
+	// Playback controls
+	b.pbc = lmnts.New()
+	b.pbc.Name = "pbc"
+	b.pbc.SetRow()
+	b.pbc.SetSize(0, 100)
 	b.prev, b.pause, b.next = lmnts.New(), lmnts.New(), lmnts.New()
 	b.pause.Name = "pause"
 	b.prev.SetSize(125, 75)
 	b.pause.SetSize(75, 75)
 	b.next.SetSize(125, 75)
-	pl.GapsAround(30, b.prev, b.pause, b.next)
-	b.top.Add(pl)
+	b.pbc.GapsAround(30, b.prev, b.pause, b.next)
+	b.top.Add(b.pbc)
 
-	// ## NumPad init
+	// NumPad
 	b.np = lmnts.New()
 	b.np.Name = "np"
 	b.np.SetSize(0, b.nph)
@@ -66,8 +72,8 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	}
 	in := lmnts.New()
 	in.Name = "in"
-	b.np.AddTBLR(30, 30, 30, 30, in)
 	in.Grid(3, 20, b.npl...)
+	b.np.AddTBLR(30, 30, 30, 30, in)
 
 	b.top.DoAll()
 
@@ -80,10 +86,28 @@ func (b *blocks) update(scrW, scrH int, ratW, ratH float32) {
 }
 
 // TODO show / hide gets called quite often?
+func (b *blocks) playConShow() {
+	if !b.pbcshow {
+		b.pbcshow = true
+		b.top.AddN(-1, b.pbc)
+		b.top.DoAll()
+	}
+}
+
+func (b *blocks) playConHide() {
+	if b.pbcshow {
+		b.pbcshow = false
+		b.top.Del(b.pbc)
+		b.top.DoAll()
+	}
+}
+
 func (b *blocks) numPadShow() {
 	if !b.npshow {
 		b.npshow = true
-		b.top.AddN(-2, b.np)
+		n := -1
+		if b.top.IsAdded(b.pbc) { n = -2 }
+		b.top.AddN(n, b.np)
 		b.top.DoAll()
 	}
 }

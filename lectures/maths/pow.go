@@ -5,16 +5,14 @@ import (
 	//"math"
 	"strconv"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/frame"
-	//"github.com/not-learning/app/inter"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// TODO: hide numpad on Prev, Next
 type Pow struct {
-	*frame.Lect
+	*frame.Frame
 	clrs.Clr
 	clrY uint8
 
@@ -68,7 +66,7 @@ func (p *Pow) xact2() bool {
 	p.Erase()
 	correct, ok := p.Check(ans)
 	if correct && ok { p.bool = true }
-	if p.bool { p.NumPadHide() }
+	if p.bool { p.NumPadHide() } // TODO PlayConShow / Hide
 	return p.bool
 }
 
@@ -128,12 +126,12 @@ func (p *Pow) zero4() {}
 
 // TODO proper tracks
 //go:embed tracks/pow
-var powF embed.FS
+var powFiles embed.FS
 
 func InitPow(x1, y1, x2, y2 float32) *Pow {
 	p := &Pow{}
-	p.Lect = frame.Init(x1, y1, x2, y2)
-	p.Lect.Tracks.InitFiles("tracks/pow", powF)
+	p.Frame = frame.Init(x1, y1, x2, y2)
+	p.Tracks.InitFiles("tracks/pow", powFiles)
 	p.Clr = clrs.White
 
 	p.AddEx(p.sub1(), p.shape1, p.anim1, p.xact1, p.zero1)

@@ -4,16 +4,15 @@ import (
 	"embed"
 	"math"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/not-learning/app/clrs"
 	"github.com/not-learning/app/frame"
-	//"github.com/not-learning/app/inter"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // TODO: prepare for Next, Prev
 type Trig struct {
-	*frame.Lect
+	*frame.Frame
 	clrs.Clr
 
 	r, a1, a2, x, y, prevX, prevY float32
@@ -127,12 +126,12 @@ func (t *Trig) zero4() { t.a1 = 0 }
 
 // TODO proper tracks
 //go:embed tracks/pow
-var files embed.FS
+var trigFiles embed.FS
 
 func InitTrig(x1, y1, x2, y2 float32) *Trig {
 	t := &Trig{}
-	t.Lect = frame.Init(x1, y1, x2, y2)
-	t.Lect.Tracks.InitFiles("tracks/pow", files)
+	t.Frame = frame.Init(x1, y1, x2, y2)
+	t.Tracks.InitFiles("tracks/pow", trigFiles)
 
 	t.r = 180
 

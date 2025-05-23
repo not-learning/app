@@ -23,8 +23,8 @@ func loadFont() *text.GoTextFaceSource {
 	var face *text.GoTextFaceSource
 	if face != nil { return face }
 
-	//file, err := os.Open("assets/fonts/JuliaMono-Light.ttf")
-	file, err := os.Open("assets/fonts/DejaVuSans.ttf")
+	file, err := os.Open("assets/fonts/JuliaMono-Light.ttf")
+	//file, err := os.Open("assets/fonts/DejaVuSans.ttf")
 	if err != nil { log.Fatal(err) }
 	defer file.Close()
 

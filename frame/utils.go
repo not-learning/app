@@ -1,5 +1,5 @@
 package frame
-
+// TODO move to graph??
 import (
 	//"errors"
 	"log"
@@ -38,8 +38,9 @@ func AnimPoly(crds []float32) func(float32) []float32 {
 	c, s := AnimLine(x1, y1, x2, y2)
 	var dx, dy float32 = 0, 0
 	ll := []float32{x1, y1, x1, y1}
+
 	return func(speed float32) []float32 {
-		if speed < 0 {
+		if speed < 0 { // todo what is this??
 			i, dx, dy = 0, 0, 0
 			ll = []float32{crds[i], crds[i+1], crds[i], crds[i+1]}
 			return ll
@@ -53,15 +54,10 @@ func AnimPoly(crds []float32) func(float32) []float32 {
 		x, y := dx + x1, dy + y1
 		ll[i+2], ll[i+3] = x, y
 
-		/*if !(x > x1 && x < x2 ||
-		     x > x2 && x < x1 ||
-		     y > y1 && y < y2 ||
-		     y > y2 && y < y1) {//*/
-
 		if !(x1 < x2 && x < x2 ||
-		     x1 > x2 && x > x2 ||
-		     y1 < y2 && y < y2 ||
-		     y1 > y2 && y > y2) {
+	    	 x1 > x2 && x > x2 ||
+	    	 y1 < y2 && y < y2 ||
+	    	 y1 > y2 && y > y2) {
 
 			   	ll[i+2], ll[i+3] = x2, y2
 			   	dx, dy = 0, 0
@@ -71,28 +67,3 @@ func AnimPoly(crds []float32) func(float32) []float32 {
 		return ll
 	}
 }
-
-/*func XLinesPA(x1, y1, x2, y2, a, r float32) (x, y float32, err error) {
-	var x3, y3 float32 = 0, 0
-	s, c := math.Sincos(float64(a))
-	x4, y4 := r*float32(c), r*float32(s)
-
-	d := (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4)
-	if d == 0 {
-		return 0, 0, errors.New("XLinesPA: lines are parallel or coincide")
-	}
-
-	t := ((x1-x3)*(y3-y4) - (y1-y3)*(x3-x4)) / d
-	if t < 0 || t > 1 {
-		return 0, 0, errors.New("XLinesPA: cross point out of bounds")
-	}
-	
-	u := ((x1-x2)*(y1-y3) - (y1-y2)*(x1-x3)) / d
-	if u < 0 || u > 1 {
-		return 0, 0, errors.New("XLinesPA: cross point out of bounds")
-	}
-
-	x = x1 + t*(x2-x1)
-	y = y1 + t*(y2-y1)
-	return x, y, nil
-}//*/

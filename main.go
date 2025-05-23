@@ -3,11 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/not-learning/app/home"
 
-	lobby "github.com/not-learning/app/lectures"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// TODO package tools <- clrs, fonts, inter...
 // TODO Check should work even when !play TODO
 // TODO image.Bounds() and friends TODO
 // TODO relative sizes
@@ -18,19 +19,19 @@ import (
 const scrW, scrH = 450, 1000
 
 type game struct{
-	*lobby.Lobby
+	*home.Home
 	screenW, screenH int
 	ratW, ratH float32
 }
 
 func (g *game) Update() error {
 	g.ratW, g.ratH = float32(g.screenW)/scrW, float32(g.screenH)/scrH
-	g.Lobby.Update(g.screenW, g.screenH, g.ratW, g.ratH)//*/
+	g.Home.Update(g.screenW, g.screenH, g.ratW, g.ratH)
 	return nil
 }
 
 func (g *game) Draw(scr *ebiten.Image) {
-	g.Lobby.Draw(scr)
+	g.Home.Draw(scr)
 }
 
 func (g *game) Layout(outW, outH int) (int, int) {
@@ -42,7 +43,7 @@ func (g *game) Layout(outW, outH int) (int, int) {
 
 func initGame() *game {
 	g := &game{}
-	g.Lobby = lobby.Init(0, 0, scrW, scrH)
+	g.Home = home.Init(0, 0, scrW, scrH)
 	return g
 }
 
