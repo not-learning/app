@@ -22,12 +22,13 @@ type Pow struct {
 
 // ## Ex1
 func (p *Pow) sub1() func(*ebiten.Image) {
-	return p.SubDraw(p.SubWrap(
+	return p.Sub(
 		`Ты конечно помнишь, что умножение - это сложение одинаковых чисел.`,
-	))
+	)
 }
 
 func (p *Pow) shape1(scr *ebiten.Image) {
+	p.PlayConShow()
 	p.Label(scr, "Степень", 30, 0, 0, clrs.YCC(p.clrY, 128, 128))
 }
 
@@ -45,9 +46,9 @@ func (p *Pow) zero1() {}
 
 // ## Ex2
 func (p *Pow) sub2() func(*ebiten.Image) {
-	return p.SubDraw(p.SubWrap(
+	return p.Sub(
 		`Чему равно, скажем, пять умножить на три?`,
-	))
+	)
 }
 
 func (p *Pow) shape2(scr *ebiten.Image) {
@@ -66,7 +67,7 @@ func (p *Pow) xact2() bool {
 	p.Erase()
 	correct, ok := p.Check(ans)
 	if correct && ok { p.bool = true }
-	if p.bool { p.NumPadHide() } // TODO PlayConShow / Hide
+	if p.bool { p.NumPadHide() }
 	return p.bool
 }
 
@@ -98,9 +99,9 @@ func (p *Pow) zero2() {
 
 // ## Ex3
 func (p *Pow) sub3() func(*ebiten.Image) {
-	return p.SubDraw(p.SubWrap(
+	return p.Sub(
 		`Так вот, степень - это умножение одинаковых чисел.`,
-	))
+	)
 }
 
 func (p *Pow) shape3(scr *ebiten.Image) { p.shape1(scr) }
@@ -110,9 +111,9 @@ func (p *Pow) zero3() {}
 
 // ## Ex4
 func (p *Pow) sub4() func(*ebiten.Image) {
-	return p.SubDraw(p.SubWrap(
+	return p.Sub(
 		`Пять в третьей это пять на пять на пять.`,
-	))
+	)
 }
 
 func (p *Pow) shape4(scr *ebiten.Image) {

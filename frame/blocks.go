@@ -41,7 +41,7 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	sl.SetSize(0, 40)
 	si := lmnts.New()
 	si.Name = "si"
-	sl.AddL(20, si)
+	sl.AddLR(20, 20, si)
 	b.subs = append(b.subs, lmnts.New(), lmnts.New())
 	si.Add(b.subs...)
 	b.top.Add(sl)
@@ -57,7 +57,7 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	b.pause.SetSize(75, 75)
 	b.next.SetSize(125, 75)
 	b.pbc.GapsAround(30, b.prev, b.pause, b.next)
-	b.top.Add(b.pbc)
+	//b.top.Add(b.pbc)
 
 	// NumPad
 	b.np = lmnts.New()
@@ -73,7 +73,7 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	in := lmnts.New()
 	in.Name = "in"
 	in.Grid(3, 20, b.npl...)
-	b.np.AddTBLR(30, 30, 30, 30, in)
+	b.np.AddTBLR(1, 30, 30, 30, in)
 
 	b.top.DoAll()
 

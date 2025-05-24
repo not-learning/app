@@ -30,12 +30,13 @@ func (t *Trig) xy() {
 
 // ## Ex1
 func (t *Trig) sub1() func(*ebiten.Image) {
-	return t.SubDraw(t.SubWrap(
+	return t.Sub(
 		`Представь робота, который может вырезать любую фигуру по ее координатам.`,
-	))
+	)
 }
 
 func (t *Trig) shape1(scr *ebiten.Image) {
+	t.PlayConShow()
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
 	t.PolyEmp(scr, t.polygon, clrs.Green)
 	t.Robot(scr, t.x, t.y, t.r)
@@ -60,9 +61,9 @@ func (t *Trig) zero1() {
 
 // ## Ex2
 func (t *Trig) sub2() func(*ebiten.Image) {
-	return t.SubDraw(t.SubWrap(
+	return t.Sub(
 		`Мы хотим вырезать круг. Как задать координаты?`,
-	))
+	)
 }
 
 func (t *Trig) shape2(scr *ebiten.Image) {
@@ -85,9 +86,9 @@ func (t *Trig) zero2() {
 
 // ## Ex3
 func (t *Trig) sub3() func(*ebiten.Image) {
-	return t.SubDraw(t.SubWrap(
+	return t.Sub(
 		`Возьмем координатную плоскость.`,
-	))
+	)
 }
 
 func (t *Trig) shape3(scr *ebiten.Image) {
@@ -100,9 +101,9 @@ func (t *Trig) zero3() {}
 
 // ## Ex4
 func (t *Trig) sub4() func(*ebiten.Image) {
-	return t.SubDraw(t.SubWrap(
+	return t.Sub(
 		`И поместим на нее круг.`,
-	))
+	)
 }
 
 func (t *Trig) shape4(scr *ebiten.Image) {

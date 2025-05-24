@@ -141,7 +141,7 @@ func (f *Frame) Prev() {
 	f.Tracks.Switch(f.exn)
 }
 
-func (f *Frame) SubWrap(sub string) []string {
+func (f *Frame) subWrap(sub string) []string {
 	res := []string{}
 	x1, _, x2, _ := f.blocks.subs[0].Rect()
 	w := float64(x2-x1) - 20 // TODO proper sizes
@@ -149,13 +149,17 @@ func (f *Frame) SubWrap(sub string) []string {
 	return res
 }
 
-func (f *Frame) SubDraw(sub []string) func(*ebiten.Image) {
+func (f *Frame) subDraw(sub []string) func(*ebiten.Image) {
 	return func(scr *ebiten.Image) {
 		for i, v := range sub {
 			x, y, _, _ := f.blocks.subs[i].Rect()
 			f.Font.Draw(scr, v, 15, x, y, clrs.White)
 		}
 	}
+}
+
+func (f *Frame) Sub(sub string) func(*ebiten.Image) {
+	return f.subDraw(f.subWrap(sub))
 }
 
 func (f *Frame) AddEx(
