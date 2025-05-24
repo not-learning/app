@@ -71,6 +71,31 @@ func Init(x1, y1, x2, y2 float32) *Frame {
 
 func (f *Frame) ChapterFn(fn func(int)) { f.SetChapter = fn }
 
+func (f *Frame) Label(
+	scr *ebiten.Image,
+	text string,
+	size, x, y float32,
+	clr clrs.Clr,
+) {
+	x, y = f.Coords(x, y)
+	f.DrawCenter(scr, text, size, x, y, clr)
+	return
+}
+
+func (f *Frame) LabelRect(
+	scr *ebiten.Image,
+	text string,
+	size, x, y float32,
+	clr clrs.Clr,
+) (x1, y1, x2, y2 float32) {
+	x, y = f.Coords(x, y)
+	f.DrawCenter(scr, text, size, x, y, clr)
+	w, h := f.TextSize(text)
+	x1, x2 = x-float32(w/2), x+float32(w/2)
+	y1, y2 = y-float32(h/2), y+float32(h/2)
+	return
+}
+
 func (f *Frame) Play() {
 	f.play = true
 	f.Tracks.Play()

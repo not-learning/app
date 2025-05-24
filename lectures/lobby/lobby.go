@@ -9,6 +9,7 @@ import (
 
 type Lobby struct {
 	*frame.Frame
+	chapter int
 }
 
 func Init(x1, y1, x2, y2 float32) *Lobby {
@@ -21,8 +22,12 @@ func Init(x1, y1, x2, y2 float32) *Lobby {
 func (l *Lobby) sub0(*ebiten.Image) {}
 
 func (l *Lobby) shape1(scr *ebiten.Image) {
-	l.Label(scr, "Степени", 30, 0, 50, clrs.Blue)
-	l.Label(scr, "Тригонометрия", 30, 0, 0, clrs.Blue)
+	switch {
+		case l.MouseLIn(l.LabelRect(scr, "Степени", 30, 0, 50, clrs.Blue)):
+			l.SetChapter(1)
+		case l.MouseLIn(l.LabelRect(scr, "Тригонометрия", 30, 0, 0, clrs.Blue)):
+			l.SetChapter(2)
+	}
 }
 
 func (l *Lobby) anim1() bool { return true }

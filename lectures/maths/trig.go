@@ -91,7 +91,7 @@ func (t *Trig) sub3() func(*ebiten.Image) {
 }
 
 func (t *Trig) shape3(scr *ebiten.Image) {
-	t.Coords(scr)
+	t.XYplane(scr)
 }
 
 func (t *Trig) anim3() bool { return true }
@@ -106,7 +106,7 @@ func (t *Trig) sub4() func(*ebiten.Image) {
 }
 
 func (t *Trig) shape4(scr *ebiten.Image) {
-	t.Coords(scr)
+	t.XYplane(scr)
 	t.Arc(scr, 0, 0, t.r, 0, t.a1, t.Clr)
 }
 
@@ -156,7 +156,7 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 }
 
 /*func (t *Trig) shape1(scr *ebiten.Image) {
-	t.Coords(scr, clrs.Green)
+	t.XYplane(scr, clrs.Green)
 
 	t.Arc(scr, 0, 0, t.r, 0, t.a1, t.Clr)
 	//t.Arrow(scr, 0, 0, 1.2*t.x, 1.2*t.y, clrs.White)

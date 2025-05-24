@@ -97,6 +97,12 @@ func (t *Tracks) Play() {
 	}
 }
 
+func (t *Tracks) Rewind(funName string) {
+	if e := t.tracks[t.curTrack].Rewind(); e != nil {
+		log.Println(funName+": ", e)
+	}
+}
+
 func (t *Tracks) Pause() {
 	pl, ok := t.IsPlaying()
 	if !ok { return }
@@ -130,6 +136,7 @@ func (t *Tracks) Proceed() {
 		t.tracks[t.curTrack].Play()
 	}
 	if pl, ok := t.IsPlaying(); !pl && ok {
+		t.Rewind("tracks.Proceed")
 		t.nextTrack()
 		t.tracks[t.curTrack].Play()
 	}
@@ -139,9 +146,7 @@ func (t *Tracks) Next() {
 	if t.tracks == nil || len(t.tracks) == 0 { return }
 
 	t.tracks[t.curTrack].Pause()
-	if e := t.tracks[t.curTrack].Rewind(); e != nil {
-		log.Println("Prev: ", e)
-	}
+	t.Rewind("tracks.Next")
 	t.nextTrack()
 }
 
@@ -149,9 +154,7 @@ func (t *Tracks) Switch(n int) {
 	if t.tracks == nil || len(t.tracks) == 0 { return }
 
 	t.tracks[t.curTrack].Pause()
-	if e := t.tracks[t.curTrack].Rewind(); e != nil {
-		log.Println("Prev: ", e)
-	}
+	t.Rewind("tracks.Switch")
 	t.switchTrack(n)
 }
 
@@ -159,9 +162,7 @@ func (t *Tracks) Prev() {
 	if t.tracks == nil || len(t.tracks) == 0 { return }
 
 	t.tracks[t.curTrack].Pause()
-	if e := t.tracks[t.curTrack].Rewind(); e != nil {
-		log.Println("Prev: ", e)
-	}
+	t.Rewind("tracks.Prev")
 	t.prevTrack()
 }
 
