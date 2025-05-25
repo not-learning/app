@@ -1,9 +1,9 @@
 package game
 
 import (
-	"github.com/not-learning/app/home"
-
 	"github.com/hajimehoshi/ebiten/v2"
+
+	"github.com/not-learning/app/nlapp/home"
 )
 
 // TODO package tools <- clrs, fonts, inter...

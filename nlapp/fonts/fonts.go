@@ -2,16 +2,18 @@ package fonts
 
 import (
 	"bufio"
+	"embed"
 	"image/color"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
-// TODO: go:embed the font
+// //go:embed DejaVuSans.ttf
+//go:embed JuliaMono-Light.ttf
+var ff embed.FS
 
 type Font struct {
 	face *text.GoTextFace
@@ -23,10 +25,10 @@ func loadFont() *text.GoTextFaceSource {
 	var face *text.GoTextFaceSource
 	if face != nil { return face }
 
-	file, err := os.Open("assets/fonts/JuliaMono-Light.ttf")
-	//file, err := os.Open("assets/fonts/DejaVuSans.ttf")
+	file, err := ff.Open("JuliaMono-Light.ttf")
+	//file, err := ff.Open("DejaVuSans.ttf")
 	if err != nil { log.Fatal(err) }
-	defer file.Close()
+	defer file.Close()//*/
 
 	face, err = text.NewGoTextFaceSource(bufio.NewReader(file))
 	if err != nil { log.Fatal(err) }

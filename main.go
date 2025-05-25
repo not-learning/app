@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/not-learning/app/game"
-
 	"github.com/hajimehoshi/ebiten/v2"
+
+	"github.com/not-learning/app/nlapp/game"
 )
 
 func main() {

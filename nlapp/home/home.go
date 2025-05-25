@@ -3,9 +3,9 @@ package home
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/not-learning/app/clrs"
-	"github.com/not-learning/app/lectures/lobby"
-	"github.com/not-learning/app/lectures/maths"
+	"github.com/not-learning/app/nlapp/clrs"
+	"github.com/not-learning/app/nlapp/lectures/lobby"
+	"github.com/not-learning/app/nlapp/lectures/maths"
 )
 
 type Home struct {

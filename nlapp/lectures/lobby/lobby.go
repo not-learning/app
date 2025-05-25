@@ -3,8 +3,8 @@ package lobby
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/not-learning/app/clrs"
-	"github.com/not-learning/app/frame"
+	"github.com/not-learning/app/nlapp/clrs"
+	"github.com/not-learning/app/nlapp/frame"
 )
 
 type Lobby struct {

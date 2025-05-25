@@ -5,11 +5,11 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/not-learning/app/clrs"
-	"github.com/not-learning/app/fonts"
-	"github.com/not-learning/app/graph"
-	"github.com/not-learning/app/inter"
-	"github.com/not-learning/app/tracks"
+	"github.com/not-learning/app/nlapp/clrs"
+	"github.com/not-learning/app/nlapp/fonts"
+	"github.com/not-learning/app/nlapp/graph"
+	"github.com/not-learning/app/nlapp/inter"
+	"github.com/not-learning/app/nlapp/tracks"
 )
 
 type ex struct {

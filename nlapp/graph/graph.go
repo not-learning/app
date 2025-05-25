@@ -5,7 +5,7 @@ import (
 	"log"
 	"math"
 
-	"github.com/not-learning/app/clrs"
+	"github.com/not-learning/app/nlapp/clrs"
 	"github.com/not-learning/lmnts"
 
 	"github.com/hajimehoshi/ebiten/v2"
