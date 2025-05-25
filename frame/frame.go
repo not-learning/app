@@ -65,7 +65,7 @@ func Init(x1, y1, x2, y2 float32) *Frame {
 		0, 0,
 	}
 
-	// f.play = true
+	// f.play = true // TODO DEV
 	return f
 }
 
