@@ -236,7 +236,7 @@ func (f *Frame) Draw(screen *ebiten.Image) {
 	f.exs[f.exn].shape(screen)
 	f.exs[f.exn].sub(screen)
 	//graph.Draw(screen, f.blocks.prev, f.blocks.pause, f.blocks.next)
-	//f.blocks.top.WalkDown(graph.TestDraw(screen))
+	f.blocks.top.WalkDown(graph.TestDraw(screen))
 
 	if f.blocks.pbcshow {
 		x, y := f.blocks.prev.MidF32()
