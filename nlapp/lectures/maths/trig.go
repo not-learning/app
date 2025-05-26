@@ -1,6 +1,6 @@
 package maths
 
-import (
+import ("strconv"
 	"embed"
 	"math"
 
@@ -35,8 +35,17 @@ func (t *Trig) sub1() func(*ebiten.Image) {
 	)
 }
 
+func q(n float32) string { // DEV
+	return strconv.FormatFloat(float64(n), 'f', 0, 32)
+}
+
 func (t *Trig) shape1(scr *ebiten.Image) {
 	t.PlayConShow()
+	t.Label( // DEV
+		scr,
+		q(t.X2)+" "+q(t.Y2),
+		20, -100, 100, clrs.White,
+	)
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
 	t.PolyEmp(scr, t.polygon, clrs.Green)
 	t.Robot(scr, t.x, t.y, t.r)

@@ -18,7 +18,7 @@ type Home struct {
 
 func Init(x1, y1, x2, y2 float32) *Home {
 	h := &Home{}
-	//h.chapter = 2 // TODO DEV
+	h.chapter = 2 // TODO DEV
 	h.lobby = lobby.Init(x1, y1, x2, y2)
 	h.lobby.ChapterFn(h.Chapter)
 
@@ -45,7 +45,7 @@ func (h *Home) Update(scrW, scrH int, ratW, ratH float32) {
 }
 
 func (h *Home) Draw(scr *ebiten.Image) {
-	scr.Fill(clrs.YCC(100, 28, 128)) // TODO use clrs
+	scr.Fill(clrs.YCC(20, 128, 128)) // TODO use clrs
 	switch h.chapter {
 		case 1:
 			h.pow.Draw(scr)

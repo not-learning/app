@@ -33,6 +33,8 @@ type Frame struct {
 
 	SetChapter func(int)
 
+	X1, Y1, X2, Y2 float32 // DEV
+
 	*numpad
 
 	*blocks
@@ -66,6 +68,7 @@ func Init(x1, y1, x2, y2 float32) *Frame {
 	}
 
 	// f.play = true // TODO DEV
+	//f.Pause() // TODO DEV
 	return f
 }
 
@@ -210,6 +213,7 @@ func (f *Frame) Check(solution int) (correct, ok bool) {
 }
 
 func (f *Frame) Update(scrW, scrH int, ratW, ratH float32) {
+	f.X2, f.Y2 = float32(scrW), float32(scrH) // DEV
 	f.blocks.update(scrW, scrH, ratW, ratH)
 	f.Font.Update(scrW, scrH, ratW, ratH)
 
