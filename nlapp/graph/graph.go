@@ -20,22 +20,30 @@ type Graph struct {
 	indices  []uint16
 	tr       *ebiten.Image
 
-	x0, y0   float32
+	x0, y0, x1, y1, x2, y2, scale float32
 }
 
 func Init() *Graph {
 	g := &Graph{}
 	g.tr = ebiten.NewImage(2, 2)
 	g.tr.Fill(color.RGBA{1, 1, 1, 1})
+	g.scale = 120
 	return g
 }
 
-func (g *Graph) Update(scrW, scrH int, ratW, ratH float32) {} // TODO TODO TODO
+func (g *Graph) Update(x1, y1, x2, y2 float32) {
+	g.SetEdges(x1, y1, x2, y2)
+}
 
-func (g *Graph) SetOrigin(x0, y0 float32) { g.x0, g.y0 = x0, y0 }
+func (g *Graph) SetEdges(x1, y1, x2, y2 float32) {
+	g.x1, g.y1, g.x2, g.y2 = x1, y1, x2, y2
+	g.x0, g.y0 = (x2-x1)/2, (y2-y1)/2
+}
+
+func (g *Graph) SetScale(s float32) { g.scale = s }
 
 func (g *Graph) Coords(x, y float32) (float32, float32) {
-	return x+g.x0, -y+g.y0
+	return g.x0*(1 + x/g.scale), -y/g.scale*g.x0 + g.y0
 }
 
 func (g *Graph) CirEmp(
@@ -56,6 +64,7 @@ func (g *Graph) CirFull(scr *ebiten.Image, x, y, r float32, clr clrs.Clr) {
 func (g *Graph) Arc(scr *ebiten.Image, x, y, r, φ1, φ2 float32, clr clrs.Clr) {
 	var path vector.Path
 	x, y = g.Coords(x, y)
+	r = r*g.x0/g.scale
 	path.Arc(x, y, r, -φ1, -φ2, vector.CounterClockwise)
 
 	op := &vector.StrokeOptions{}
@@ -121,6 +130,14 @@ func (g *Graph) PolyEmp(scr *ebiten.Image, crds []float32, clr clrs.Clr) {
 }
 
 func (g *Graph) PolyFull(scr *ebiten.Image, crds []float32, clr clrs.Clr) {
+	if len(crds) == 0 {
+		//log.Println("PolyFull: no coordinates")
+		return
+	}
+	if len(crds)%2 != 0 {
+		log.Println("PolyFull: odd number of coordinates")
+	}
+
 	var path vector.Path
 	for i, k := 0, 1; k < len(crds); i, k = i+2, k+2 {
 		x, y := g.Coords(crds[i], crds[k])
@@ -159,9 +176,9 @@ func (g *Graph) Arrow(scr *ebiten.Image, x1, y1, x2, y2 float32, clr clrs.Clr) {
 	//g.Label(scr, "►", 20, x2, y2, clr)
 	w, h := x2-x1, y2-y1
 	l := float32(math.Hypot(float64(w), float64(h)))
-	if l == 0 {return}
+	if l == 0 { return }
 	s, c := h/l, w/l
-	var al, aw float32 = 15, 4 // arrow tip length and width
+	var al, aw float32 = 10, 2 // arrow tip length and width
 	g.PolyFull(scr, []float32{
 		x2 + aw*s - al*c,
 		y2 - aw*c - al*s,
@@ -171,16 +188,16 @@ func (g *Graph) Arrow(scr *ebiten.Image, x1, y1, x2, y2 float32, clr clrs.Clr) {
 	}, clr)//*/
 }
 
-func (g *Graph) XYplane(scr *ebiten.Image) {
-	g.Arrow(scr, -200, 0, 200, 0, clrs.Blue)
-	g.Arrow(scr, 0, -200, 0, 200, clrs.Blue)
+func (g *Graph) XYplane(scr *ebiten.Image) { // TODO edges
+	g.Arrow(scr, -115, 0, 115, 0, clrs.Blue)
+	g.Arrow(scr, 0, -115, 0, 115, clrs.Blue)
 }
 
-func (g *Graph) Robot(scr *ebiten.Image, x, y, edge float32) {
-	g.CirFull(scr, x, -edge, 4, clrs.Blue)
-	g.CirFull(scr, -edge, y, 4, clrs.Blue)
-	g.PolyEmp(scr, []float32{x, -edge, x, y}, clrs.Blue)
-	g.PolyEmp(scr, []float32{-edge, y, x, y}, clrs.Blue)
+func (g *Graph) Robot(scr *ebiten.Image, x, y float32) {
+	g.CirFull(scr, x, -g.scale*0.9, 4, clrs.Blue)
+	g.CirFull(scr, -g.scale*0.9, y, 4, clrs.Blue)
+	g.PolyEmp(scr, []float32{x, -g.scale*0.9, x, y}, clrs.Blue)
+	g.PolyEmp(scr, []float32{-g.scale*0.9, y, x, y}, clrs.Blue)
 }
 
 // TODO get rid of

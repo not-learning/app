@@ -30,10 +30,9 @@ type Frame struct {
 	play bool
 	exs  []ex
 	exn    int
+ids []ebiten.TouchID // DEV
 
 	SetChapter func(int)
-
-	X1, Y1, X2, Y2 float32 // DEV
 
 	*numpad
 
@@ -50,7 +49,7 @@ func Init(x1, y1, x2, y2 float32) *Frame {
 	f.blocks = initBlocks(x1, y1, x2, y2)
 	f.Font = fonts.InitFont()
 	f.Graph = graph.Init()
-	f.Graph.SetOrigin(f.blocks.screen.MidF32())
+	f.SetEdges(f.blocks.screen.Rect())
 	f.Tracks = tracks.Init()
 
 	f.numpad.str = []string{
@@ -67,9 +66,33 @@ func Init(x1, y1, x2, y2 float32) *Frame {
 		0, 0,
 	}
 
+
 	// f.play = true // TODO DEV
 	//f.Pause() // TODO DEV
 	return f
+}
+
+func (f *Frame) Update(scrW, scrH int) {
+	if f.Escape() { os.Exit(0) }
+f.ids = ebiten.AppendTouchIDs(f.ids[:0]) // DEV
+for _, id := range f.ids {
+	x, y := ebiten.TouchPosition(id)
+	if x > 0 && y > 0 { f.Pause() }
+}
+	if f.Space() || f.MouseLIn(f.blocks.pause.Rect()) { f.Pause() }
+
+	if f.ArrowLeft() || f.MouseLIn(f.blocks.prev.Rect()) {
+		f.Prev()
+		return
+	}
+	if f.ArrowRight() || f.MouseLIn(f.blocks.next.Rect()) {
+		f.Next()
+		return
+	}
+
+	f.blocks.update(scrW, scrH)
+	f.Graph.Update(f.blocks.screen.Rect())
+	f.Proceed()
 }
 
 func (f *Frame) ChapterFn(fn func(int)) { f.SetChapter = fn }
@@ -212,31 +235,11 @@ func (f *Frame) Check(solution int) (correct, ok bool) {
 	return
 }
 
-func (f *Frame) Update(scrW, scrH int, ratW, ratH float32) {
-	f.X2, f.Y2 = float32(scrW), float32(scrH) // DEV
-	f.blocks.update(scrW, scrH, ratW, ratH)
-	f.Font.Update(scrW, scrH, ratW, ratH)
-
-	if f.Escape() { os.Exit(0) }
-	if f.Space() || f.MouseLIn(f.blocks.pause.Rect()) { f.Pause() }
-
-	if f.ArrowLeft() || f.MouseLIn(f.blocks.prev.Rect()) {
-		f.Prev()
-		return
-	}
-	if f.ArrowRight() || f.MouseLIn(f.blocks.next.Rect()) {
-		f.Next()
-		return
-	}
-
-	f.Proceed()
-}
-
 func (f *Frame) Draw(screen *ebiten.Image) {
 	f.exs[f.exn].shape(screen)
 	f.exs[f.exn].sub(screen)
 	//graph.Draw(screen, f.blocks.prev, f.blocks.pause, f.blocks.next)
-	f.blocks.top.WalkDown(graph.TestDraw(screen))
+	//f.blocks.top.WalkDown(graph.TestDraw(screen))
 
 	if f.blocks.pbcshow {
 		x, y := f.blocks.prev.MidF32()

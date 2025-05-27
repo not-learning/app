@@ -33,14 +33,14 @@ func Init(x1, y1, x2, y2 float32) *Home {
 
 func (h *Home) Chapter(n int) { h.chapter = n }
 
-func (h *Home) Update(scrW, scrH int, ratW, ratH float32) {
+func (h *Home) Update(scrW, scrH int) {
 	switch h.chapter {
 		case 1:
-			h.pow.Update(scrW, scrH, ratW, ratH)
+			h.pow.Update(scrW, scrH)
 		case 2:
-			h.trig.Update(scrW, scrH, ratW, ratH)
+			h.trig.Update(scrW, scrH)
 		default:
-			h.lobby.Update(scrW, scrH, ratW, ratH)
+			h.lobby.Update(scrW, scrH)
 	}
 }
 

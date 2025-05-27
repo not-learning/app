@@ -51,7 +51,7 @@ for i, id := range t.ids {
 	t.PlayConShow()
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
 	t.PolyEmp(scr, t.polygon, clrs.Green)
-	t.Robot(scr, t.x, t.y, t.r)
+	t.Robot(scr, t.x, t.y)
 }//*/
 
 func (t *Trig) anim1() bool {
@@ -79,7 +79,7 @@ func (t *Trig) sub2() func(*ebiten.Image) {
 }
 
 func (t *Trig) shape2(scr *ebiten.Image) {
-	t.Robot(scr, t.x, t.y, t.r+20)
+	t.Robot(scr, t.x, t.y)
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
 }
 
@@ -146,7 +146,7 @@ func InitTrig(x1, y1, x2, y2 float32) *Trig {
 	t.Frame = frame.Init(x1, y1, x2, y2)
 	t.Tracks.InitFiles("tracks/pow", trigFiles)
 
-	t.r = 180
+	t.r = 100
 
 	var a float32 = math.Pi/5
 	five1 := frame.Polygon(5, 0, 0, t.r, 0.1)

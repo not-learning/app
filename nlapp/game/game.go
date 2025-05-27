@@ -12,19 +12,17 @@ import (
 // TODO relative sizes
 // TODO: have lists prepared for drawing
 
-const scrW, scrH = 1000, 2000
+//const scrW, scrH = 1000, 2000
 //const scrW, scrH = 300, 600
-//const scrW, scrH = 500, 1000
+const scrW, scrH = 500, 1000
 
 type game struct{
 	*home.Home
 	ScreenW, ScreenH int
-	ratW, ratH float32
 }
 
 func (g *game) Update() error {
-	g.ratW, g.ratH = float32(g.ScreenW)/scrW, float32(g.ScreenH)/scrH
-	g.Home.Update(g.ScreenW, g.ScreenH, g.ratW, g.ratH)
+	g.Home.Update(g.ScreenW, g.ScreenH)
 	return nil
 }
 

@@ -7,6 +7,7 @@ import (
 )
 
 type blocks struct {
+	x1, y1 float32
 	top    *lmnts.Lmnt
 	screen *lmnts.Lmnt
 	subs   []*lmnts.Lmnt
@@ -27,6 +28,7 @@ type blocks struct {
 
 func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	b := &blocks{}
+	b.x1, b.y1 = x1, y1
 	b.nph = 350
 
 	b.top = lmnts.New()
@@ -53,10 +55,10 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	b.pbc.SetSize(0, 100)
 	b.prev, b.pause, b.next = lmnts.New(), lmnts.New(), lmnts.New()
 	b.pause.Name = "pause"
-	b.prev.SetSize(125, 75)
+	b.prev.SetSize(125, 75) // TODO check both options
 	b.pause.SetSize(75, 75)
 	b.next.SetSize(125, 75)
-	b.pbc.GapsAround(30, b.prev, b.pause, b.next)
+	b.pbc.GapsAround(0, b.prev, b.pause, b.next)
 	//b.top.Add(b.pbc)
 
 	// NumPad
@@ -80,9 +82,12 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	return b
 }
 
-func (b *blocks) update(scrW, scrH int, ratW, ratH float32) {
-	b.top.Update(scrW, scrH, ratW, ratH)
-	//if b.np != nil { b.np.Update(scrW, scrH) }
+var oldW, oldH int
+func (b *blocks) update(scrW, scrH int) {
+	if scrW == oldW || scrH == oldH { return }
+	b.top.SetRect(b.x1, b.y1, float32(scrW), float32(scrH))
+	b.top.DoAll()
+	oldW, oldH = scrW, scrH
 }
 
 // TODO show / hide gets called quite often?
