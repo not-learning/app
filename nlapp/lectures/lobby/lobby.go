@@ -23,9 +23,9 @@ func (l *Lobby) sub0(*ebiten.Image) {}
 
 func (l *Lobby) shape1(scr *ebiten.Image) {
 	switch {
-		case l.MouseLIn(l.LabelRect(scr, "Степени", 30, 0, 50, clrs.Blue)):
+		case l.TapIn(l.LabelRect(scr, "Степени", 30, 0, 50, clrs.Blue)):
 			l.SetChapter(1)
-		case l.MouseLIn(l.LabelRect(scr, "Тригонометрия", 30, 0, 0, clrs.Blue)):
+		case l.TapIn(l.LabelRect(scr, "Тригонометрия", 30, 0, 0, clrs.Blue)):
 			l.SetChapter(2)
 	}
 }
@@ -36,8 +36,6 @@ func (l *Lobby) xact1() bool {
 	if i, ok := l.Number(); ok {
 		l.SetChapter(i)
 	}
-	/*if l.MouseLIn(l.powLabel) { l.int = 1 }
-	if l.MouseLIn(l.trigLabel) { l.int = 2 }*/
 	return true
 }
 

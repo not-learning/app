@@ -30,7 +30,6 @@ type Frame struct {
 	play bool
 	exs  []ex
 	exn    int
-ids []ebiten.TouchID // DEV
 
 	SetChapter func(int)
 
@@ -74,18 +73,16 @@ func Init(x1, y1, x2, y2 float32) *Frame {
 
 func (f *Frame) Update(scrW, scrH int) {
 	if f.Escape() { os.Exit(0) }
-f.ids = ebiten.AppendTouchIDs(f.ids[:0]) // DEV
-for _, id := range f.ids {
-	x, y := ebiten.TouchPosition(id)
-	if x > 0 && y > 0 { f.Pause() }
-}
-	if f.Space() || f.MouseLIn(f.blocks.pause.Rect()) { f.Pause() }
 
-	if f.ArrowLeft() || f.MouseLIn(f.blocks.prev.Rect()) {
+	if f.Space() || f.TapIn(f.blocks.pause.Rect()) {
+		f.Pause()
+	}
+
+	if f.ArrowLeft() || f.TapIn(f.blocks.prev.Rect()) {
 		f.Prev()
 		return
 	}
-	if f.ArrowRight() || f.MouseLIn(f.blocks.next.Rect()) {
+	if f.ArrowRight() || f.TapIn(f.blocks.next.Rect()) {
 		f.Next()
 		return
 	}
@@ -214,7 +211,7 @@ func (f *Frame) Input() int {
 
 	for i, v := range f.blocks.npl {
 		if i == 9 || i == 11 { continue }
-		if f.MouseLIn(v.Rect()) {
+		if f.TapIn(v.Rect()) {
 			f.numpad.input = f.numpad.input*10 + f.numpad.num[i]
 		}
 	}
@@ -222,7 +219,7 @@ func (f *Frame) Input() int {
 }
 
 func (f *Frame) Erase() {
-	if f.MouseLIn(f.blocks.npl[9].Rect()) || f.Backspace() {
+	if f.TapIn(f.blocks.npl[9].Rect()) || f.Backspace() {
 		f.numpad.input /= 10
 	}
 }
@@ -230,7 +227,7 @@ func (f *Frame) Erase() {
 // todo: not very good
 func (f *Frame) Check(solution int) (correct, ok bool) {
 	correct = f.numpad.input == solution
-	ok = f.MouseLIn(f.blocks.npl[11].Rect()) || f.Enter()
+	ok = f.TapIn(f.blocks.npl[11].Rect()) || f.Enter()
 	if ok { f.PlayCorrect(correct) }
 	return
 }

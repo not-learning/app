@@ -5,7 +5,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type Inter struct {}
+type Inter struct {
+	ids []ebiten.TouchID
+}
 
 /*func Init(x1, y1, x2, y2 float32) *Inter {
 	in := &Inter{}
@@ -73,6 +75,23 @@ func (in Inter) MouseLIn(x1, y1, x2, y2 float32) bool {
 		//return x1*x1 < x*x && x*x < x2*x2 && y1*y1 < y*y && y*y < y2*y2
 	}
 	return false
+}
+
+func (in Inter) TouchIn(x1, y1, x2, y2 float32) bool {
+	in.ids = inpututil.AppendJustPressedTouchIDs(in.ids[:0])
+	for _, id := range in.ids { // todo use in.ids[0] instead?
+		a, b := ebiten.TouchPosition(id)
+		x, y := float32(a), float32(b)
+		if x1 < x && x < x2 && y1 < y && y < y2 ||
+       x1 > x && x > x2 && y1 > y && y > y2 {
+				return true
+		}
+	}
+	return false
+}
+
+func (in Inter) TapIn(x1, y1, x2, y2 float32) bool {
+	return in.TouchIn(x1, y1, x2, y2) || in.MouseLIn(x1, y1, x2, y2)
 }
 
 func (in Inter) Number() (int, bool) {
