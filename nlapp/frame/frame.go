@@ -202,8 +202,6 @@ func (f *Frame) PlayConShow() { f.blocks.playConShow() }
 
 func (f *Frame) PlayConHide() { f.blocks.playConHide() }
 
-/*func (f *Frame) Touch() {}//*/
-
 func (f *Frame) Input() int {
 	if n, ok := f.Number(); ok {
 		f.numpad.input = n + f.numpad.input*10

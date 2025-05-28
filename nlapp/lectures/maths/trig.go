@@ -1,6 +1,6 @@
 package maths
 
-import ("strconv"
+import (
 	"embed"
 	"math"
 
@@ -20,8 +20,6 @@ type Trig struct {
 	n int
 	c, s float32
 
-ids []ebiten.TouchID // DEV
-
 	animP func(float32) []float32
 }
 
@@ -38,16 +36,7 @@ func (t *Trig) sub1() func(*ebiten.Image) {
 	)
 }
 
-func q(n int) string { // DEV
-	return strconv.FormatFloat(float64(n), 'f', 0, 32)
-}
-
 func (t *Trig) shape1(scr *ebiten.Image) {
-t.ids = ebiten.AppendTouchIDs(t.ids[:0]) // DEV
-for i, id := range t.ids {
-	x, y := ebiten.TouchPosition(id)
-	t.Label(scr, q(x)+" "+q(y), 20, float32(-100), float32(150-40*i), clrs.White)
-}
 	t.PlayConShow()
 	t.CirFull(scr, t.x, t.y, 4, clrs.White)
 	t.PolyEmp(scr, t.polygon, clrs.Green)
@@ -135,7 +124,6 @@ func (t *Trig) anim4() bool {
 
 func (t *Trig) xact4() bool { return true }
 func (t *Trig) zero4() { t.a1 = 0 }
-
 
 // TODO proper tracks
 //go:embed tracks/pow

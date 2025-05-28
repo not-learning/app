@@ -6,15 +6,14 @@ import (
 	"github.com/not-learning/app/nlapp/home"
 )
 
-// TODO package tools <- clrs, fonts, inter...
 // TODO Check should work even when !play TODO
 // TODO image.Bounds() and friends TODO
 // TODO relative sizes
 // TODO: have lists prepared for drawing
 
-//const scrW, scrH = 1000, 2000
+const scrW, scrH = 1000, 2000
 //const scrW, scrH = 300, 600
-const scrW, scrH = 500, 1000
+//const scrW, scrH = 500, 1000
 
 type game struct{
 	*home.Home

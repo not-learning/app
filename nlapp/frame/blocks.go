@@ -82,12 +82,12 @@ func initBlocks(x1, y1, x2, y2 float32) *blocks {
 	return b
 }
 
-var oldW, oldH int
+//var oldW, oldH int
 func (b *blocks) update(scrW, scrH int) {
-	if scrW == oldW || scrH == oldH { return }
+	//if scrW == oldW || scrH == oldH { return } // DEV
 	b.top.SetRect(b.x1, b.y1, float32(scrW), float32(scrH))
 	b.top.DoAll()
-	oldW, oldH = scrW, scrH
+	//oldW, oldH = scrW, scrH
 }
 
 // TODO show / hide gets called quite often?
