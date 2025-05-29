@@ -10,7 +10,8 @@ import (
 
 func main() {
 	g := game.Init()
-	ebiten.SetWindowSize(g.ScreenW/2, g.ScreenH/2)
+	//ebiten.SetWindowSize(g.ScreenW/2, g.ScreenH/2) // DEV TODO: scale sizes properly
+	ebiten.SetWindowSize(g.ScreenW, g.ScreenH)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	//ebiten.SetWindowDecorated(false)
 	if e := ebiten.RunGame(g); e != nil {

@@ -31,6 +31,8 @@ type Frame struct {
 	exs  []ex
 	exn    int
 
+	subH, pbcH, npH float32
+
 	SetChapter func(int)
 
 	*numpad
@@ -42,14 +44,18 @@ type Frame struct {
 	*tracks.Tracks
 }
 
-func Init(x1, y1, x2, y2 float32) *Frame {
+func Init(x1, y1, x2, y2, scale float32) *Frame {
 	f := &Frame{}
 	f.numpad = &numpad{}
 	f.blocks = initBlocks(x1, y1, x2, y2)
-	f.Font = fonts.InitFont()
+	f.Font = fonts.InitFont(scale)
 	f.Graph = graph.Init()
 	f.SetEdges(f.blocks.screen.Rect())
 	f.Tracks = tracks.Init()
+
+	f.subH = 15
+	f.pbcH = 40
+	f.npH = 40
 
 	f.numpad.str = []string{
 		"7", "8", "9",
@@ -65,13 +71,18 @@ func Init(x1, y1, x2, y2 float32) *Frame {
 		0, 0,
 	}
 
-
 	// f.play = true // TODO DEV
 	//f.Pause() // TODO DEV
 	return f
 }
 
-func (f *Frame) Update(scrW, scrH int) {
+/*func (f *Frame) SetSizes(subH, pbcH, npH float32) {
+	f.subH = float64(subH)
+	f.pbcH = pbcH
+	f.npH = npH
+}//*/
+
+func (f *Frame) Update(scrW, scrH int, scale float32) {
 	if f.Escape() { os.Exit(0) }
 
 	if f.Space() || f.TapIn(f.blocks.pause.Rect()) {
@@ -87,6 +98,11 @@ func (f *Frame) Update(scrW, scrH int) {
 		return
 	}
 
+	f.Font.Update(scale)
+	i := scale*1.5
+	f.blocks.subL.SetSize(0, f.subH*i*2)
+	f.blocks.pbc.SetSize(0, f.pbcH*i)
+	f.blocks.np.SetSize(0, f.npH*i*4)
 	f.blocks.update(scrW, scrH)
 	f.Graph.Update(f.blocks.screen.Rect())
 	f.Proceed()
@@ -114,8 +130,8 @@ func (f *Frame) LabelRect(
 	x, y = f.Coords(x, y)
 	f.DrawCenter(scr, text, size, x, y, clr)
 	w, h := f.TextSize(text)
-	x1, x2 = x-float32(w/2), x+float32(w/2)
-	y1, y2 = y-float32(h/2), y+float32(h/2)
+	x1, x2 = x-w/2, x+w/2
+	y1, y2 = y-h/2, y+h/2
 	return
 }
 
@@ -167,22 +183,23 @@ func (f *Frame) Prev() {
 func (f *Frame) subWrap(sub string) []string {
 	res := []string{}
 	x1, _, x2, _ := f.blocks.subs[0].Rect()
-	w := float64(x2-x1) - 20 // TODO proper sizes
-	res = append(res, f.Font.Wrap(15, w, sub)...)
+	w := x2-x1 - 20 // TODO proper sizes
+	res = append(res, f.Font.Wrap(f.subH, w, sub)...)
 	return res
 }
 
-func (f *Frame) subDraw(sub []string) func(*ebiten.Image) {
+func (f *Frame) subDraw(sub string) func(*ebiten.Image) {
 	return func(scr *ebiten.Image) {
-		for i, v := range sub {
+		sl := f.subWrap(sub)
+		for i, v := range sl {
 			x, y, _, _ := f.blocks.subs[i].Rect()
-			f.Font.Draw(scr, v, 15, x, y, clrs.White)
+			f.Font.Draw(scr, v, float32(f.subH), x, y, clrs.White)
 		}
 	}
 }
 
 func (f *Frame) Sub(sub string) func(*ebiten.Image) {
-	return f.subDraw(f.subWrap(sub))
+	return f.subDraw(sub)
 }
 
 func (f *Frame) AddEx(
@@ -238,15 +255,15 @@ func (f *Frame) Draw(screen *ebiten.Image) {
 
 	if f.blocks.pbcshow {
 		x, y := f.blocks.prev.MidF32()
-		f.Font.DrawCenter(screen, "←", 75, x, y, clrs.White)
+		f.Font.DrawCenter(screen, "⮜", f.pbcH, x, y, clrs.White)
 		x, y = f.blocks.next.MidF32()
-		f.Font.DrawCenter(screen, "→", 75, x, y, clrs.White)
+		f.Font.DrawCenter(screen, "⮞", f.pbcH, x, y, clrs.White)
 
 		x, y = f.blocks.pause.MidF32()
 		if f.play {
-			f.Font.DrawCenter(screen, "▮▮", 50, x, y, clrs.White)
+			f.Font.DrawCenter(screen, "▮▮", f.pbcH, x, y, clrs.White)
 		} else {
-			f.Font.DrawCenter(screen, "▶", 50, x, y, clrs.White)
+			f.Font.DrawCenter(screen, "▶", f.pbcH, x, y, clrs.White)
 		}
 	}
 
@@ -254,7 +271,7 @@ func (f *Frame) Draw(screen *ebiten.Image) {
 		//graph.Draw(screen, f.blocks.npf...)
 		for i, v := range f.blocks.npl {
 			x, y := v.MidF32()
-			f.Font.DrawCenter(screen, f.numpad.str[i], 50, x, y, clrs.White)
+			f.Font.DrawCenter(screen, f.numpad.str[i], f.npH, x, y, clrs.White)
 		}
 	}
 }

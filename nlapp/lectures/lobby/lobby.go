@@ -12,9 +12,9 @@ type Lobby struct {
 	chapter int
 }
 
-func Init(x1, y1, x2, y2 float32) *Lobby {
+func Init(x1, y1, x2, y2, scale float32) *Lobby {
 	l := &Lobby{}
-	l.Frame = frame.Init(x1, y1, x2, y2)
+	l.Frame = frame.Init(x1, y1, x2, y2, scale)
 	l.AddEx(l.sub0, l.shape1, l.anim1, l.xact1, l.zero1)
 	return l
 }

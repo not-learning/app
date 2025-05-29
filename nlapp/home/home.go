@@ -16,15 +16,15 @@ type Home struct {
 	chapter int
 }
 
-func Init(x1, y1, x2, y2 float32) *Home {
+func Init(x1, y1, x2, y2, scale float32) *Home {
 	h := &Home{}
-	h.lobby = lobby.Init(x1, y1, x2, y2)
+	h.lobby = lobby.Init(x1, y1, x2, y2, scale)
 	h.lobby.ChapterFn(h.Chapter)
 
-	h.pow = maths.InitPow(x1, y1, x2, y2)
+	h.pow = maths.InitPow(x1, y1, x2, y2, scale)
 	h.pow.ChapterFn(h.Chapter)
 
-	h.trig = maths.InitTrig(x1, y1, x2, y2)
+	h.trig = maths.InitTrig(x1, y1, x2, y2, scale)
 	h.trig.ChapterFn(h.Chapter)
 
 	return h
@@ -32,14 +32,14 @@ func Init(x1, y1, x2, y2 float32) *Home {
 
 func (h *Home) Chapter(n int) { h.chapter = n }
 
-func (h *Home) Update(scrW, scrH int) {
+func (h *Home) Update(scrW, scrH int, scale float32) {
 	switch h.chapter {
 		case 1:
-			h.pow.Update(scrW, scrH)
+			h.pow.Update(scrW, scrH, scale)
 		case 2:
-			h.trig.Update(scrW, scrH)
+			h.trig.Update(scrW, scrH, scale)
 		default:
-			h.lobby.Update(scrW, scrH)
+			h.lobby.Update(scrW, scrH, scale)
 	}
 }
 

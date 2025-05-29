@@ -20,6 +20,20 @@ type Pow struct {
 	bool
 }
 
+func InitPow(x1, y1, x2, y2, scale float32) *Pow {
+	p := &Pow{}
+	p.Frame = frame.Init(x1, y1, x2, y2, scale)
+	p.Tracks.InitFiles("tracks/pow", powFiles)
+	p.Clr = clrs.White
+
+	p.AddEx(p.sub1(), p.shape1, p.anim1, p.xact1, p.zero1)
+	p.AddEx(p.sub2(), p.shape2, p.anim2, p.xact2, p.zero2)
+	p.AddEx(p.sub3(), p.shape3, p.anim3, p.xact3, p.zero3)
+	p.AddEx(p.sub4(), p.shape4, p.anim4, p.xact4, p.zero4)
+
+	return p
+}
+
 // ## Ex1
 func (p *Pow) sub1() func(*ebiten.Image) {
 	return p.Sub(
@@ -128,20 +142,6 @@ func (p *Pow) zero4() {}
 // TODO proper tracks
 //go:embed tracks/pow
 var powFiles embed.FS
-
-func InitPow(x1, y1, x2, y2 float32) *Pow {
-	p := &Pow{}
-	p.Frame = frame.Init(x1, y1, x2, y2)
-	p.Tracks.InitFiles("tracks/pow", powFiles)
-	p.Clr = clrs.White
-
-	p.AddEx(p.sub1(), p.shape1, p.anim1, p.xact1, p.zero1)
-	p.AddEx(p.sub2(), p.shape2, p.anim2, p.xact2, p.zero2)
-	p.AddEx(p.sub3(), p.shape3, p.anim3, p.xact3, p.zero3)
-	p.AddEx(p.sub4(), p.shape4, p.anim4, p.xact4, p.zero4)
-
-	return p
-}
 
 /*func (p *Pow) shape1(scr *ebiten.Image) {
 	p.Coords(scr, clrs.Green)

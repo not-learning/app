@@ -23,6 +23,33 @@ type Trig struct {
 	animP func(float32) []float32
 }
 
+func InitTrig(x1, y1, x2, y2, scale float32) *Trig {
+	t := &Trig{}
+	t.Frame = frame.Init(x1, y1, x2, y2, scale)
+	t.Tracks.InitFiles("tracks/pow", trigFiles)
+
+	t.r = 100
+
+	var a float32 = math.Pi/5
+	five1 := frame.Polygon(5, 0, 0, t.r, 0.1)
+	five2 := frame.Polygon(5, 0, 0, t.r/2.6, a+0.1)
+	star := make([]float32, 24)
+	for i := 0; i < len(five1); i += 2 {
+		star[2*i], star[2*i+1] = five1[i], five1[i+1]
+		star[2*i+2], star[2*i+3] = five2[i], five2[i+1]
+	}
+
+	t.animP = frame.AnimPoly(star[:len(star)-2])
+
+	t.AddEx(t.sub1(), t.shape1, t.anim1, t.xact1, t.zero1)
+	t.AddEx(t.sub2(), t.shape2, t.anim2, t.xact2, t.zero2)
+	t.AddEx(t.sub3(), t.shape3, t.anim3, t.xact3, t.zero3)
+	t.AddEx(t.sub4(), t.shape4, t.anim4, t.xact4, t.zero4)
+
+	t.Clr = clrs.Green
+	return t
+}
+
 func (t *Trig) xy() {
 	s, c := math.Sincos(float64(t.a1))
 	t.x, t.y = t.r*float32(c), t.r*float32(s)
@@ -128,33 +155,6 @@ func (t *Trig) zero4() { t.a1 = 0 }
 // TODO proper tracks
 //go:embed tracks/pow
 var trigFiles embed.FS
-
-func InitTrig(x1, y1, x2, y2 float32) *Trig {
-	t := &Trig{}
-	t.Frame = frame.Init(x1, y1, x2, y2)
-	t.Tracks.InitFiles("tracks/pow", trigFiles)
-
-	t.r = 100
-
-	var a float32 = math.Pi/5
-	five1 := frame.Polygon(5, 0, 0, t.r, 0.1)
-	five2 := frame.Polygon(5, 0, 0, t.r/2.6, a+0.1)
-	star := make([]float32, 24)
-	for i := 0; i < len(five1); i += 2 {
-		star[2*i], star[2*i+1] = five1[i], five1[i+1]
-		star[2*i+2], star[2*i+3] = five2[i], five2[i+1]
-	}
-
-	t.animP = frame.AnimPoly(star[:len(star)-2])
-
-	t.AddEx(t.sub1(), t.shape1, t.anim1, t.xact1, t.zero1)
-	t.AddEx(t.sub2(), t.shape2, t.anim2, t.xact2, t.zero2)
-	t.AddEx(t.sub3(), t.shape3, t.anim3, t.xact3, t.zero3)
-	t.AddEx(t.sub4(), t.shape4, t.anim4, t.xact4, t.zero4)
-
-	t.Clr = clrs.Green
-	return t
-}
 
 /*func (t *Trig) shape1(scr *ebiten.Image) {
 	t.XYplane(scr, clrs.Green)
