@@ -23,10 +23,12 @@ func (l *Lobby) sub0(*ebiten.Image) {}
 
 func (l *Lobby) shape1(scr *ebiten.Image) {
 	switch {
-		case l.TapIn(l.LabelRect(scr, "Степени", 30, 0, 50, clrs.Blue)):
+		case l.TapIn(l.LabelRect(scr, "Алгебра", 30, 0, 60, clrs.Blue)):
 			l.SetChapter(1)
-		case l.TapIn(l.LabelRect(scr, "Тригонометрия", 30, 0, 0, clrs.Blue)):
+		case l.TapIn(l.LabelRect(scr, "Степени", 30, 0, 30, clrs.Blue)):
 			l.SetChapter(2)
+		case l.TapIn(l.LabelRect(scr, "Тригонометрия", 30, 0, 0, clrs.Blue)):
+			l.SetChapter(3)
 	}
 }
 

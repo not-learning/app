@@ -1,0 +1,131 @@
+package parser
+
+import ("fmt"
+	"log"
+	"strconv"
+	"strings"
+
+	// "github.com/not-learning/app/nlapp/clrs"
+)
+
+/*var fileStrs []string = []string{`"Попробуем описать эти задачи алгебраически."`,
+`"Обозначим вес арбуза буквой а,"`,
+`S[`,
+`L "a"`,
+`L "b", x 2, y 3, s 50`,
+`]`,
+`A[x 1...3]`,
+`"и просто запишем, что у нас находится"`,
+`"на каждой чаше весов."`,
+`"Начнем с первой задачи."`,
+`"Слева у нас будет а + 3,"`,
+`S[L"a+3"]`,
+`"а справа просто 10."`,
+`S[L"a+3   10"]`,
+`"Весы находятся в равновесии."`,
+`"Какой знак мы можем поставить между этими выражениями?"`,
+`"Равно, конечно."`,
+`S[L"a+3 = 10"]`,
+`"Такое выражение называется уравнение."`,
+`"Любая буква в уравнении называется переменная,"`,
+`"а если мы ищем ее значение, называем неизвестная."`,
+}*/
+
+type things struct {
+	sub string
+	shape, anim, xact, zero []string
+}
+
+var allThings []things
+
+func doRaw(raw string) {
+	ss := strings.Split(raw, "\n")
+	i, j := 0, -1
+	for i < len(ss) {
+		switch ss[i][0] {
+			case '"':
+				allThings = append(allThings, things{})
+				j++
+				allThings[j].sub = strings.Trim(ss[i], "\"")
+				i++
+			case 'S':
+				k := 0
+				allThings[j].shape = append(allThings[j].shape, ss[i])
+				for !strings.HasSuffix(ss[i], "]") {
+					i++; k++
+					allThings[j].shape = append(allThings[j].shape, ss[i])
+				}
+				i++
+			case 'A':
+				k := 0
+				allThings[j].anim = append(allThings[j].anim, ss[i])
+				for !strings.HasSuffix(ss[i], "]") {
+					i++; k++
+					allThings[j].anim = append(allThings[j].anim, ss[i])
+				}
+				i++
+			case 'X':
+				k := 0
+				allThings[j].xact = append(allThings[j].xact, ss[i])
+				for !strings.HasSuffix(ss[i], "]") {
+					i++; k++
+					allThings[j].xact = append(allThings[j].xact, ss[i])
+				}
+				i++
+			case 'Z':
+				k := 0
+				allThings[j].zero = append(allThings[j].zero, ss[i])
+				for !strings.HasSuffix(ss[i], "]") {
+					i++; k++
+					allThings[j].zero = append(allThings[j].zero, ss[i])
+				}
+		}
+	}
+}
+
+func doShape(shapes []string) {
+	for _, shape := range shapes {
+		switch shape[0] {
+			case 'L':
+				doLabel(strings.Split(strings.Trim(shape, "L "), ", "))
+		}
+	}
+}
+
+func doLabel(strs []string) {
+	var (
+		str string
+		x, y, size float64
+		err error
+		// clr clrs.Clr
+	)
+	for _, s := range strs {
+		switch s[0] {
+			case '"':
+				str = strings.Trim(s, "\"")
+			case 'x':
+				x, err = strconv.ParseFloat(strings.Trim(s, "x "), 32)
+				if err != nil { log.Print("parser.doLabel: ", err)}
+			case 'y':
+				y, err = strconv.ParseFloat(strings.Trim(s, "y "), 32)
+				if err != nil { log.Print("parser.doLabel: ", err)}
+			case 's':
+				size, err = strconv.ParseFloat(strings.Trim(s, "s "), 32)
+				if err != nil { log.Print("parser.doLabel: ", err)}
+			case 'c':
+				// clr = doClr(strings.Trim(s, "c "))
+		}
+	}
+	fmt.Printf("Label(scr, \"%v\", %v, %v, %v)\n", str, float32(x), float32(y), float32(size))
+}
+
+// func doClr()
+
+func Run() {
+	
+}
+
+/*func main() {
+	doRaw(fileStrs)
+	doShape(allThings[1].shape)
+}*/

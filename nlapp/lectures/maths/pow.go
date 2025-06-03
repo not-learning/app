@@ -11,13 +11,17 @@ import (
 	"github.com/not-learning/app/nlapp/frame"
 )
 
+// TODO proper tracks
+//go:embed tracks/pow
+var powFiles embed.FS
+
 type Pow struct {
 	*frame.Frame
 	clrs.Clr
 	clrY uint8
 
 	input int
-	bool
+	check bool
 }
 
 func InitPow(x1, y1, x2, y2, scale float32) *Pow {
@@ -80,13 +84,13 @@ func (p *Pow) xact2() bool {
 	p.input = p.Input()
 	p.Erase()
 	correct, ok := p.Check(ans)
-	if correct && ok { p.bool = true }
-	if p.bool { p.NumPadHide() }
-	return p.bool
+	if correct && ok { p.check = true }
+	if p.check { p.NumPadHide() }
+	return p.check
 }
 
 func (p *Pow) zero2() {
-	p.bool = false
+	p.check = false
 	p.NumPadHide()
 }
 
@@ -138,10 +142,6 @@ func (p *Pow) anim4() bool { return true }
 
 func (p *Pow) xact4() bool { return true }
 func (p *Pow) zero4() {}
-
-// TODO proper tracks
-//go:embed tracks/pow
-var powFiles embed.FS
 
 /*func (p *Pow) shape1(scr *ebiten.Image) {
 	p.Coords(scr, clrs.Green)
