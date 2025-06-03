@@ -11,7 +11,7 @@ import (
 
 type Label struct {
 	str string
-	x, y, size float32
+	size, x, y float32
 }
 
 type shape struct {
@@ -30,8 +30,8 @@ func (th Things) Sub() string { return th.sub }
 
 func (th Things) Labels() []Label { return th.labels }
 
-func (lb Label) Label() (str string, x, y, size float32) {
-	return lb.str, lb.x, lb.y, lb.size
+func (lb Label) Label() (str string, size, x, y float32) {
+	return lb.str, lb.size, lb.x, lb.y
 }
 
 func indices(str string, chars string) []int {
@@ -84,7 +84,7 @@ func doShape(str string) shape {
 func doLabel(text string) Label {
 	var (
 		str string
-		x, y, size float64
+		size, x, y float64
 		err error
 	)
 	text = strings.TrimSpace(strings.Trim(text, "L"))
@@ -94,6 +94,10 @@ func doLabel(text string) Label {
 		switch s[0] {
 		case '"':
 			str = strings.Trim(s, "\"")
+		case 's':
+			tt := strings.TrimSpace(strings.Trim(s, "s"))
+			size, err = strconv.ParseFloat(tt, 32)
+			if err != nil { log.Print("parser.doLabel: ", err)}
 		case 'x':
 			tt := strings.TrimSpace(strings.Trim(s, "x"))
 			x, err = strconv.ParseFloat(tt, 32)
@@ -102,11 +106,8 @@ func doLabel(text string) Label {
 			tt := strings.TrimSpace(strings.Trim(s, "y"))
 			y, err = strconv.ParseFloat(tt, 32)
 			if err != nil { log.Print("parser.doLabel: ", err)}
-		case 's':
-			tt := strings.TrimSpace(strings.Trim(s, "s"))
-			size, err = strconv.ParseFloat(tt, 32)
-			if err != nil { log.Print("parser.doLabel: ", err)}
 		}
 	}
-	return Label{str: str, x: float32(x), y: float32(y), size: float32(size)}
+	if size == 0 { size = 35 }
+	return Label{str: str, size: float32(size), x: float32(x), y: float32(y)}
 }
