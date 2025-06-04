@@ -52,12 +52,14 @@ func (g *Graph) CirEmp(
 	clr clrs.Clr,
 ) {
 	x, y = g.Coords(x, y)
+	r = r*g.x0/g.scale
 	vector.DrawFilledCircle(scr, x, y, r, clrs.Black, true)
 	vector.StrokeCircle(scr, x, y, r, 1.5, clr, true)
 }
 
 func (g *Graph) CirFull(scr *ebiten.Image, x, y, r float32, clr clrs.Clr) {
 	x, y = g.Coords(x, y)
+	r = r*g.x0/g.scale
 	vector.DrawFilledCircle(scr, x, y, r, clr, true)
 }
 

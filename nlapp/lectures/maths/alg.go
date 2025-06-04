@@ -7,7 +7,7 @@ import (//"fmt"
 
 	"github.com/not-learning/app/nlapp/clrs"
 	"github.com/not-learning/app/nlapp/frame"
-	"github.com/not-learning/app/nlapp/parser"
+	"github.com/not-learning/app/nlapp/parse"
 )
 
 //go:embed alg.txt
@@ -27,10 +27,9 @@ func InitAlg(x1, y1, x2, y2, scale float32) *Alg {
 	a.Tracks.InitFiles("tracks/pow", powFiles) // TODO
 	a.Clr = clrs.White
 
-	pp := parser.Do(algRaw)
+	pp := parse.Do(algRaw)
 	for _, p := range pp {
-		// ll := p.Labels()
-		a.AddEx(a.doSub(p.Sub()), a.doShape(p.Labels()), a.anim1, a.xact1, a.zero1)
+		a.AddEx(a.doSub(p.Sub()), a.Shapes(p.Labels()), a.anim1, a.xact1, a.zero1)
 	}
 
 	return a
@@ -40,7 +39,7 @@ func (a *Alg) doSub(str string) func(*ebiten.Image) {
 	return a.Sub(str)
 }
 
-func (a *Alg) doShape(ll []parser.Label) func(*ebiten.Image) {
+func (a *Alg) Shapes(ll []parse.Label) func(*ebiten.Image) {
 	return func(scr *ebiten.Image) {
 		a.PlayConShow()
 		for _, lb := range ll {
