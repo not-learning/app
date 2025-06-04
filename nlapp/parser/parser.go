@@ -78,7 +78,26 @@ func doShape(str string) shape {
 			ll = append(ll, doLabel(s))
 		}
 	}
+	posLabels(ll)
 	return shape{labels: ll}
+}
+
+func posLabels (ll []Label) {
+	ln := len(ll)
+	if ln < 2 { return }
+	for _, lb := range ll {
+		if lb.x != 0 || lb.y != 0 { return }
+	}
+
+	h := ll[0].size*float32(ln-1)
+	println(ln)
+	for i := range ll {
+		f := float32(i)
+		ll[i].y = -f*ll[i].size + h/2
+		print(ll[i].y)
+		print("	")
+	}
+	println()
 }
 
 func doLabel(text string) Label {
