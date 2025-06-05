@@ -1,6 +1,6 @@
 package parse
 
-import (
+import (//"fmt"
 	_ "embed"
 	"log"
 	"strconv"
@@ -33,15 +33,21 @@ type Anim struct {
 	speeds map[string]float32
 }
 
+/*type Zero struct {
+	values map[string]float32
+}*/
+
 type Things struct {
 	sub string
 	Shape
 	Anim
-	/*xact
-	zero*/
+	//xact
+	//Zero
 }
 
-var startValues map[string]float32
+var startValues = make(map[string]float32)
+
+//var zeroValues = make(map[string]float32)
 
 func StartValues() map[string]float32 {
 	return startValues
@@ -60,12 +66,9 @@ func (lb Label) Label() (str string, size, x, y float32) {
 func (sh Shape) Circles() []Circle { return sh.circles }
 
 func (c Circle) Circle() (cx, cy, cr float32) {
-	x, ok := prs("x")
-	if ok { c.x = x }
-	y, ok := prs("y")
-	if ok { c.y = y }
-	r, ok := prs("r")
-	if ok { c.r = r }
+	if x, ok := prs("x"); ok { c.x = x }
+	if y, ok := prs("y"); ok { c.y = y }
+	if r, ok := prs("r"); ok { c.r = r }
 	return c.x, c.y, c.r
 }
 
@@ -81,9 +84,24 @@ func (an Anim) Anim() bool {
 	for k, v := range an.endValues {
 		if startValues[k] < v {
 			startValues[k] += an.speeds[k]
-		} else { return true }
+		} else {
+			startValues[k] = v
+			return true
+		}
 	}
 	return false
+}
+
+/*func (th Things) Zeroes() Zero { return th.Zero }
+
+func (z Zero) Zero() {
+	startValues = z.values
+fmt.Println(z)
+}*/
+
+func (th Things) Zero() { // TODO BAD
+	startValues = make(map[string]float32)
+	//startValues = zeroValues
 }
 
 func indices(str string, chars string) []int {
@@ -111,34 +129,25 @@ func prs(str string) (float32, bool) {
 	return num, ok
 }
 
-func createVars(str string) map[string]float32 {
-	str = strings.TrimSpace(str)
-	ss := strings.Fields(str)
-	m := make(map[string]float32)
-	for _, s := range ss { m[s] = 0 }
-	return m
-}
-
 func Do(raw string) []Things {
 	log.SetFlags(log.Lshortfile)
 	tt := []Things{}
-	startValues = make(map[string]float32)
 	ii := indices(raw, "[]")
 	i, k := 0, 0
 	for i < len(ii) {
 		if raw[ii[i+1]] != ']' {
-			log.Println("parse.doRaw: brackets mismatch")
+			log.Println("parse.Do: brackets mismatch")
 		}
 		switch raw[ii[i]-1] {
 		case 't':
 			tt = append(tt, Things{sub: raw[ii[i]+1:ii[i+1]]})
 			k++
-		/*case 'v':
-			vars = createVars(raw[ii[i]+1:ii[i+1]])*/
 		case 'S':
 			tt[k-1].Shape = doShapes(raw[ii[i]+1:ii[i+1]])
 		case 'A':
 			tt[k-1].Anim = doAnim(raw[ii[i]+1:ii[i+1]])
+		/*case 'Z':
+			doZero(raw[ii[i]+1:ii[i+1]])*/
 		}
 		i += 2
 	}
@@ -148,20 +157,20 @@ func Do(raw string) []Things {
 func doShapes(str string) Shape {
 	str = strings.TrimSpace(str)
 	ss := strings.Split(str, "\n")
-	ll, cc, pp := []Label{}, []Circle{}, []Poly{}
+	pp, cc, ll := []Poly{}, []Circle{}, []Label{}
 	for _, s := range ss {
 		s = strings.TrimSpace(s)
 		switch s[0] {
-		case 'C':
-			cc = append(cc, doCircle(s))
 		case 'P':
 			pp = append(pp, doPoly(s))
+		case 'C':
+			cc = append(cc, doCircle(s))
 		case 'L':
 			ll = append(ll, doLabel(s))
 		}
 	}
 	posLabels(ll)
-	return Shape{circles: cc, polys: pp, labels: ll}
+	return Shape{polys: pp, circles: cc, labels: ll}
 }
 
 func doAnim(str string) Anim {
@@ -187,6 +196,22 @@ func doAnim(str string) Anim {
 	}
 	return an
 }
+
+/*func doZero(str string) {
+	//z := Zero{values: make(map[string]float32)}
+	str = strings.TrimSpace(str)
+	ss := strings.Split(str, ",")
+	for _, s := range ss {
+		s = strings.TrimSpace(s)
+		c := string(s[0])
+		s = strings.TrimSpace(s[1:])
+		n, err := strconv.ParseFloat(s, 32)
+		if err != nil { log.Println("parse.doZero:", err)}
+
+		//startValues[c] = float32(n)
+		zeroValues[c] = float32(n)
+	}
+}*/
 
 func doCircle(str string) Circle {
 	var x, y, r float32
