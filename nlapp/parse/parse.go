@@ -28,30 +28,21 @@ type Shape struct {
 	labels  []Label
 }
 
-type Anim struct {
+type Anims struct {
+	startValues map[string]float32
 	endValues map[string]float32
 	speeds map[string]float32
 }
 
-/*type Zero struct {
-	values map[string]float32
-}*/
-
 type Things struct {
 	sub string
 	Shape
-	Anim
+	Anims
 	//xact
 	//Zero
 }
 
-var startValues = make(map[string]float32)
-
-//var zeroValues = make(map[string]float32)
-
-func StartValues() map[string]float32 {
-	return startValues
-}
+var curValues = make(map[string]float32)
 
 func (th Things) Sub() string { return th.sub }
 
@@ -78,30 +69,24 @@ func (pl Poly) Poly() []float32 {
 	return pl.crds
 }
 
-func (th Things) Anims() Anim { return th.Anim }
+//func (th Things) Anims() Anims { return th.Anims }
 
-func (an Anim) Anim() bool {
+func (an Anims) Anim() bool {
 	for k, v := range an.endValues {
-		if startValues[k] < v {
-			startValues[k] += an.speeds[k]
+		if curValues[k] < v {
+			curValues[k] += an.speeds[k]
 		} else {
-			startValues[k] = v
+			curValues[k] = v
 			return true
 		}
 	}
 	return false
 }
 
-/*func (th Things) Zeroes() Zero { return th.Zero }
-
-func (z Zero) Zero() {
-	startValues = z.values
-fmt.Println(z)
-}*/
-
-func (th Things) Zero() { // TODO BAD
-	startValues = make(map[string]float32)
-	//startValues = zeroValues
+func (an Anims) Zero() { // TODO BAD
+	for k, v := range an.startValues {
+		curValues[k] = v
+	}
 }
 
 func indices(str string, chars string) []int {
@@ -118,7 +103,7 @@ func indices(str string, chars string) []int {
 }
 
 func prs(str string) (float32, bool) {
-	num, ok := startValues[str]
+	num, ok := curValues[str]
 	if ok { return num, ok }
 
 	n, err := strconv.ParseFloat(str, 32)
@@ -145,9 +130,7 @@ func Do(raw string) []Things {
 		case 'S':
 			tt[k-1].Shape = doShapes(raw[ii[i]+1:ii[i+1]])
 		case 'A':
-			tt[k-1].Anim = doAnim(raw[ii[i]+1:ii[i+1]])
-		/*case 'Z':
-			doZero(raw[ii[i]+1:ii[i+1]])*/
+			tt[k-1].Anims = doAnims(raw[ii[i]+1:ii[i+1]])
 		}
 		i += 2
 	}
@@ -173,8 +156,9 @@ func doShapes(str string) Shape {
 	return Shape{polys: pp, circles: cc, labels: ll}
 }
 
-func doAnim(str string) Anim {
-	an := Anim{
+func doAnims(str string) Anims {
+	an := Anims{
+		startValues: make(map[string]float32),
 		endValues: make(map[string]float32),
 		speeds: make(map[string]float32),
 	}
@@ -186,32 +170,17 @@ func doAnim(str string) Anim {
 		s = strings.TrimSpace(s[1:])
 		strsN := strings.Split(s, "...")
 		n1, err := strconv.ParseFloat(strsN[0], 32)
-		if err != nil { log.Println("parse.doAnim:", err)}
+		if err != nil { log.Println("parse.doAnims:", err)}
 		n2, err := strconv.ParseFloat(strsN[1], 32)
-		if err != nil { log.Println("parse.doAnim:", err)}
+		if err != nil { log.Println("parse.doAnims:", err)}
 
-		startValues[c] = float32(n1)
+		an.startValues[c] = float32(n1)
+		curValues[c] = float32(n1)
 		an.endValues[c] = float32(n2)
-		an.speeds[c] = (an.endValues[c] - startValues[c]) / 60
+		an.speeds[c] = (an.endValues[c] - an.startValues[c]) / 60
 	}
 	return an
 }
-
-/*func doZero(str string) {
-	//z := Zero{values: make(map[string]float32)}
-	str = strings.TrimSpace(str)
-	ss := strings.Split(str, ",")
-	for _, s := range ss {
-		s = strings.TrimSpace(s)
-		c := string(s[0])
-		s = strings.TrimSpace(s[1:])
-		n, err := strconv.ParseFloat(s, 32)
-		if err != nil { log.Println("parse.doZero:", err)}
-
-		//startValues[c] = float32(n)
-		zeroValues[c] = float32(n)
-	}
-}*/
 
 func doCircle(str string) Circle {
 	var x, y, r float32

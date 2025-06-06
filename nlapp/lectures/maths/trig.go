@@ -32,7 +32,8 @@ func InitTrig(x1, y1, x2, y2, scale float32) *Trig {
 		t.AddEx(
 			t.Subs(p.Sub()),
 			t.Shapes(p.Shapes()),
-			t.Anim(p.Anims()),
+			//t.Anim(p.Anims()),
+			p.Anim,
 			t.xact1,
 			//t.zero1,
 			p.Zero,
@@ -66,9 +67,9 @@ func (t *Trig) Shapes(sh parse.Shape) func(*ebiten.Image) {
 	}
 }
 
-func (t *Trig) Anim(an parse.Anim) func() bool {
+/*func (t *Trig) Anim(an parse.Anims) func() bool {
 	return an.Anim
-}
+}*/
 
 /*func (t *Trig) Zero(z parse.Zero) func() {
 	return z.Zero
