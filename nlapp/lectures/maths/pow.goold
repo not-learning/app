@@ -1,110 +1,172 @@
 package maths
 
 import (
-	"github.com/not-learning/app/frame"
-	"github.com/not-learning/app/tracks"
-
-	//"embed"
-	"log"
-	"strings"
-	"encoding/csv"
+	"embed"
+	//"math"
+	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
+
+	"github.com/not-learning/app/nlapp/clrs"
+	"github.com/not-learning/app/nlapp/frame"
 )
 
-type Power struct {
-	*frame.Lecture
+// TODO proper tracks
+//go:embed tracks/pow
+var powFiles embed.FS
+
+type Pow struct {
+	*frame.Frame
+	clrs.Clr
+	clrY uint8
+
+	input int
+	check bool
 }
 
-//·×
-// text|ans
-var ex0 = `|`
+func InitPow(x1, y1, x2, y2, scale float32) *Pow {
+	p := &Pow{}
+	p.Frame = frame.Init(x1, y1, x2, y2, scale)
+	p.Tracks.InitFiles("tracks/pow", powFiles)
+	p.Clr = clrs.White
 
-var ex1 = `|
-5·3 = 5+5+5|`
-
-var ex2 = `|
-5² = 5·5|
-5³ = 5·5·5|
-5⁴ = 5·5·5·5|
-5⁵ = 5·5·5·5·5|`
-
-var ex3 = `
-10² = |100
-10³ = |1000
-10⁴ = |10000
-10ˣ = 1 000 000|
-x = |6`
-
-var ex4 = `|
-aⁿ|`
-
-var ex5 = `|
-x²·x³|x·x·x·x·x`
-
-var t1 = `
-Ты конечно знаешь, что умножение - это сложение одинаковых чисел.
-Пять на три - это пять плюс пять плюс пять.
-Так вот, степень - это просто умножение одинаковых чисел.
-Пять во второй это пять умножить на пять.
-Пять в третьей это пять на пять на пять.
-И так
-далее.
-Сможешь найти десять во второй?
-А в третьей?
-В четвертой?
-В какую степень надо возвести десять, чтобы получить миллион?
-В какую степень надо возвести десять, чтобы получить миллион?`
-
-var t2 = `Математика - как конструктор Лего, и у нас появился новый кирпичик.
-Давай посмотрим, что с ним можно сделать.
-Возьмем a в степени n.
-Кстати, число внизу, a, называется основание степени,
-а число вверху, n - показатель.
-Попробуем умножить две степени с одинаковыми основаниями,
-скажем x во второй и x в третьей. Что получится?`
-
-func rCsv(text string) [][]string {
-	r := csv.NewReader(strings.NewReader(text))
-	r.Comma = '|'
-	recs, err := r.ReadAll()
-	if err != nil { log.Fatal(err) }
-	return recs
-}
-
-func InitPow(x1, y1, x2, y2 float32) *Power {
-	p := &Power{}
-	p.Lecture = frame.Init(x1, y1, x2, y2)
-
-	p.Lecture.ExInit(
-		rCsv(ex0),
-		rCsv(ex1),
-		rCsv(ex2),
-		rCsv(ex3),
-		rCsv(ex4),
-		rCsv(ex5),
-	)
-	p.Lecture.ScriptInit(t1, t2)
-
-	p.Lecture.Tracks = tracks.Init()
+	p.AddEx(p.sub1(), p.shape1, p.anim1, p.xact1, p.zero1)
+	p.AddEx(p.sub2(), p.shape2, p.anim2, p.xact2, p.zero2)
+	p.AddEx(p.sub3(), p.shape3, p.anim3, p.xact3, p.zero3)
+	p.AddEx(p.sub4(), p.shape4, p.anim4, p.xact4, p.zero4)
 
 	return p
 }
 
-func (p *Power) Draw(scr *ebiten.Image) {
-	p.Lecture.Draw(scr)
+// ## Ex1
+func (p *Pow) sub1() func(*ebiten.Image) {
+	return p.Sub(
+		`Ты конечно помнишь, что умножение - это сложение одинаковых чисел.`,
+	)
 }
 
-func (p *Power) Update() {
-	p.Lecture.Update()
+func (p *Pow) shape1(scr *ebiten.Image) {
+	p.PlayConShow()
+	p.Label(scr, "Степень", 30, 0, 0, clrs.YCC(p.clrY, 128, 128))
 }
 
-/*
-hi there
-ˣ
-⁰¹²³⁴⁵⁶⁷⁸⁹
-⁺⁻⁼⁽⁾ⁿ
-𝟝
-⅕
-5×5×5
-*/
+func (p *Pow) anim1() bool {
+	s := uint8(7)
+	if p.clrY < 255-s {
+		p.clrY += s
+		return false
+	}
+	return true
+}
+
+func (p *Pow) xact1() bool { return true }
+func (p *Pow) zero1() {}
+
+// ## Ex2
+func (p *Pow) sub2() func(*ebiten.Image) {
+	return p.Sub(
+		`Чему равно, скажем, пять умножить на три?`,
+	)
+}
+
+func (p *Pow) shape2(scr *ebiten.Image) {
+	s := "?"
+	if p.input > 0 { s = strconv.Itoa(p.input) }
+	p.Label(scr, "5·3 = " + s, 30, 0, 0, p.Clr)
+	p.NumPadShow()
+}
+
+func (p *Pow) anim2() bool { return true }
+
+// todo: not very good
+func (p *Pow) xact2() bool {
+	ans := 15
+	p.input = p.Input()
+	p.Erase()
+	correct, ok := p.Check(ans)
+	if correct && ok { p.check = true }
+	if p.check { p.NumPadHide() }
+	return p.check
+}
+
+func (p *Pow) zero2() {
+	p.check = false
+	p.NumPadHide()
+}
+
+/*func (p *Pow) xact2cl() func() bool {
+	ret := false
+
+	return func() bool {
+		ans = 15
+		if i, ok := inter.Number(); ok {
+			p.input = i + 10*p.input
+		}
+		if inter.Enter() {
+			if p.input != ans {
+				p.PlayWrong()
+				return ret
+			}
+			p.PlayCorrect()
+			ret = true
+		}
+		if ret { p.NumPadHide() }
+		return ret
+	}
+}//*/
+
+// ## Ex3
+func (p *Pow) sub3() func(*ebiten.Image) {
+	return p.Sub(
+		`Так вот, степень - это умножение одинаковых чисел.`,
+	)
+}
+
+func (p *Pow) shape3(scr *ebiten.Image) { p.shape1(scr) }
+func (p *Pow) anim3() bool { return true }
+func (p *Pow) xact3() bool { return true }
+func (p *Pow) zero3() {}
+
+// ## Ex4
+func (p *Pow) sub4() func(*ebiten.Image) {
+	return p.Sub(
+		`Пять в третьей это пять на пять на пять.`,
+	)
+}
+
+func (p *Pow) shape4(scr *ebiten.Image) {
+	p.Label(scr, "5³ = 5·5·5", 30, 0, 0, p.Clr)
+}
+
+func (p *Pow) anim4() bool { return true }
+
+func (p *Pow) xact4() bool { return true }
+func (p *Pow) zero4() {}
+
+/*func (p *Pow) shape1(scr *ebiten.Image) {
+	p.Coords(scr, clrs.Green)
+
+	p.Arc(scr, 0, 0, p.r, 0, p.a1, p.Clr)
+	//p.Arrow(scr, 0, 0, 1.2*p.x, 1.2*p.y, clrs.White)
+	p.PolyEmp(scr, []float32{0, 0, p.x, p.y}, clrs.White)
+
+	//p.PolyEmp(scr, []float32{0, 0, x*1.5, y*1.5}, clrs.White)
+	//p.PolyEmp(scr, []float32{0, 0, r*1.5, 0}, clrs.White)
+
+	p.PolyEmp(scr, []float32{p.x, p.y, p.x, 0}, clrs.Blue)
+	p.PolyEmp(scr, []float32{p.x, p.y, 0, p.y}, clrs.Blue)
+
+	p.CirFull(scr, p.x, p.y, 4, clrs.White)
+	p.CirFull(scr, p.x,   0, 4, clrs.White)
+	p.CirFull(scr, 0,   p.y, 4, clrs.White)
+
+	p.Label(scr, "x", 15, p.x, -10, clrs.White)
+	p.Label(scr, "y", 15, 10, p.y, clrs.White)
+}//*/
+
+/*func (p *Pow) anim1() {
+		p.a2 += 0.02
+		p.xy()
+	if p.a2 >= 4*math.Pi { p.a2 = 2*math.Pi }
+	//if p.a2 >= 2.33*math.Pi { p.a2 = 2.33*math.Pi } else { p.a2 += 0.02 }
+}//*/

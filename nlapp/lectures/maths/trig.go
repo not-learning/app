@@ -27,16 +27,16 @@ func InitTrig(x1, y1, x2, y2, scale float32) *Trig {
 	t.Tracks.InitFiles("tracks/pow", powFiles) // TODO
 	t.Clr = clrs.White
 
-	pp := parse.Do(trigRaw)
-	for _, p := range pp {
+	exs := parse.Do(trigRaw)
+	for _, ex := range exs {
 		t.AddEx(
-			t.Subs(p.Sub()),
-			t.Shapes(p.Shapes()),
+			t.Subs(ex.Sub()),
+			t.Shapes(ex.Shapes()),
 			//t.Anim(p.Anims()),
-			p.Anim,
+			ex.Anim,
 			t.xact1,
 			//t.zero1,
-			p.Zero,
+			ex.Zero,
 		)
 	}
 	return t
@@ -52,7 +52,7 @@ func (t *Trig) Shapes(sh parse.Shape) func(*ebiten.Image) {
 
 		for _, pl := range sh.Polys() {
 			crds := pl.Poly()
-			t.PolyEmp(scr, crds, clrs.Green)
+			t.PolyEmp(scr, crds, clrs.Blue)
 		}
 
 		for _, cr := range sh.Circles() {

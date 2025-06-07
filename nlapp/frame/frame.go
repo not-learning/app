@@ -149,7 +149,6 @@ func (f *Frame) Proceed() {
 	var anim, xact bool
 	if f.play { anim = f.exs[f.exn].anim() }
 	xact = f.exs[f.exn].xact()
-
 	if pl, ok := f.Tracks.IsPlaying()
 	xact && anim && f.play && !pl && ok {
 		if f.exn < len(f.exs)-1 {
@@ -243,12 +242,12 @@ func (f *Frame) Erase() {
 func (f *Frame) Check(solution int) (correct, ok bool) {
 	correct = f.numpad.input == solution
 	ok = f.TapIn(f.blocks.npl[11].Rect()) || f.Enter()
-	if ok { f.PlayCorrect(correct) }
+	//if ok { f.PlayCorrect(correct) }
 	return
 }
 
 func (f *Frame) Draw(screen *ebiten.Image) {
-	f.exs[f.exn].shape(screen)
+	f.exs[f.exn].shape(screen) // TODO fix: no shapes -> panic
 	f.exs[f.exn].sub(screen)
 	//graph.Draw(screen, f.blocks.prev, f.blocks.pause, f.blocks.next)
 	//f.blocks.top.WalkDown(graph.TestDraw(screen))

@@ -14,8 +14,8 @@ import (//"fmt"
 var algRaw string
 
 type Alg struct {
-	*frame.Frame
 	clrs.Clr
+	*frame.Frame
 
 	input int
 	check bool
@@ -39,6 +39,7 @@ func (a *Alg) doSub(str string) func(*ebiten.Image) {
 	return a.Sub(str)
 }
 
+// TODO parameter Shapes instead of Label
 func (a *Alg) Shapes(ll []parse.Label) func(*ebiten.Image) {
 	return func(scr *ebiten.Image) {
 		a.PlayConShow()

@@ -10,7 +10,8 @@ import (//"fmt"
 // TODO colours
 
 type Label struct {
-	str string
+	isEx bool
+	str  string
 	size, x, y float32
 }
 
@@ -23,6 +24,7 @@ type Poly struct {
 }
 
 type Shape struct {
+	isEx bool
 	circles []Circle
 	polys   []Poly
 	labels  []Label
@@ -34,21 +36,38 @@ type Anims struct {
 	speeds map[string]float32
 }
 
+type Xacts struct {
+	isEx  bool
+	ansF  float32
+	isNum bool
+	ansS  string
+}
+
 type Things struct {
 	sub string
 	Shape
 	Anims
-	//xact
+	Xacts
 	//Zero
 }
 
+//var isEx = false
+
 var curValues = make(map[string]float32)
+
+//func IsEx() bool { return isEx }
 
 func (th Things) Sub() string { return th.sub }
 
 func (th Things) Shapes() Shape { return th.Shape }
 
 func (sh Shape) Labels() []Label { return sh.labels }
+
+func (sh Shape) IsEx() bool { return sh.isEx }
+
+func (x Xacts) IsEx() bool { return x.isEx }
+
+func (lb Label) IsEx() bool { return lb.isEx }
 
 func (lb Label) Label() (str string, size, x, y float32) {
 	return lb.str, lb.size, lb.x, lb.y
@@ -72,6 +91,9 @@ func (pl Poly) Poly() []float32 {
 //func (th Things) Anims() Anims { return th.Anims }
 
 func (an Anims) Anim() bool {
+	if an.endValues == nil { // TODO not good
+		return true
+	}
 	for k, v := range an.endValues {
 		if curValues[k] < v {
 			curValues[k] += an.speeds[k]
@@ -82,6 +104,14 @@ func (an Anims) Anim() bool {
 	}
 	return false
 }
+
+func (th Things) Xact() Xacts { return th.Xacts }
+
+func (x Xacts) IsNum() bool { return x.isNum }
+
+func (x Xacts) AnsF() float32 { return x.ansF }
+
+func (x Xacts) AnsS() string { return x.ansS }
 
 func (an Anims) Zero() { // TODO BAD
 	for k, v := range an.startValues {
@@ -109,6 +139,8 @@ func prs(str string) (float32, bool) {
 	n, err := strconv.ParseFloat(str, 32)
 	if err != nil {
 		//log.Println("parse.prs:", err) DEV
+	} else {
+		ok = true
 	}
 	num = float32(n)
 	return num, ok
@@ -131,6 +163,8 @@ func Do(raw string) []Things {
 			tt[k-1].Shape = doShapes(raw[ii[i]+1:ii[i+1]])
 		case 'A':
 			tt[k-1].Anims = doAnims(raw[ii[i]+1:ii[i+1]])
+		case 'X':
+			tt[k-1].Xacts = doXact(raw[ii[i]+1:ii[i+1]])
 		}
 		i += 2
 	}
@@ -138,7 +172,13 @@ func Do(raw string) []Things {
 }
 
 func doShapes(str string) Shape {
+	isEx := false
 	str = strings.TrimSpace(str)
+	if strings.Contains(str, "?") {
+		isEx = true
+	} else {
+		isEx = false
+	}
 	ss := strings.Split(str, "\n")
 	pp, cc, ll := []Poly{}, []Circle{}, []Label{}
 	for _, s := range ss {
@@ -153,7 +193,7 @@ func doShapes(str string) Shape {
 		}
 	}
 	posLabels(ll)
-	return Shape{polys: pp, circles: cc, labels: ll}
+	return Shape{isEx: isEx, polys: pp, circles: cc, labels: ll}
 }
 
 func doAnims(str string) Anims {
@@ -200,7 +240,7 @@ func doCircle(str string) Circle {
 			r, _ = prs(tt)
 		}
 	}
-	return Circle{x: float32(x), y: float32(y), r: float32(r)}
+	return Circle{x: x, y: y, r: r}
 }
 
 func doPoly(str string) Poly {
@@ -226,6 +266,12 @@ func doLabel(text string) Label {
 		size, x, y float64
 		err error
 	)
+	lb := Label{}
+	if strings.Contains(text, "?") {
+		lb.isEx = true
+	} else {
+		lb.isEx = false
+	}
 	text = strings.TrimSpace(strings.Trim(text, "L"))
 	ss := strings.Split(text, ",")
 	for _, s := range ss {
@@ -248,7 +294,11 @@ func doLabel(text string) Label {
 		}
 	}
 	if size == 0 { size = 35 }
-	return Label{str: str, size: float32(size), x: float32(x), y: float32(y)}
+	lb.str = str
+	lb.size = float32(size)
+	lb.x = float32(x)
+	lb.y = float32(y)
+	return lb
 }
 
 func posLabels (ll []Label) {
@@ -263,4 +313,27 @@ func posLabels (ll []Label) {
 		f := float32(i)
 		ll[i].y = -f*ll[i].size + h/2
 	}
+}
+
+func doXact(str string) Xacts {
+	var (
+		isEx bool
+		ansF float32
+		isNum bool
+		ansS string
+	)
+	isEx = true
+	str = strings.TrimSpace(strings.Trim(str, "I"))
+	ss := strings.Split(str, ",")
+	for _, s := range ss {
+		s = strings.TrimSpace(s)
+		switch s[0] {
+		case 'f':
+			tt := strings.TrimSpace(strings.TrimPrefix(s, "f"))
+			ansF, isNum = prs(tt)
+		case 's':
+			ansS = strings.TrimSpace(strings.TrimPrefix(s, "s"))
+		}
+	}
+	return Xacts{isEx: isEx, ansF: ansF, isNum: isNum, ansS: ansS}
 }

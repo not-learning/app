@@ -1,23 +1,27 @@
 package maths
 
-import (
+import (//"fmt"
 	"embed"
-	//"math"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/not-learning/app/nlapp/clrs"
 	"github.com/not-learning/app/nlapp/frame"
+	"github.com/not-learning/app/nlapp/parse"
 )
+
+//go:embed pow.txt
+var powRaw string
 
 // TODO proper tracks
 //go:embed tracks/pow
 var powFiles embed.FS
 
 type Pow struct {
-	*frame.Frame
 	clrs.Clr
+	*frame.Frame
+
 	clrY uint8
 
 	input int
@@ -30,143 +34,65 @@ func InitPow(x1, y1, x2, y2, scale float32) *Pow {
 	p.Tracks.InitFiles("tracks/pow", powFiles)
 	p.Clr = clrs.White
 
-	p.AddEx(p.sub1(), p.shape1, p.anim1, p.xact1, p.zero1)
-	p.AddEx(p.sub2(), p.shape2, p.anim2, p.xact2, p.zero2)
-	p.AddEx(p.sub3(), p.shape3, p.anim3, p.xact3, p.zero3)
-	p.AddEx(p.sub4(), p.shape4, p.anim4, p.xact4, p.zero4)
-
+	exs := parse.Do(powRaw)
+	for _, ex := range exs {
+		p.AddEx(
+			p.Subs(ex.Sub()),
+			p.Shapes(ex.Shapes()),
+			ex.Anim,
+			p.Xacts(ex.Xact()),
+			ex.Zero,
+		)
+	}
 	return p
 }
 
-// ## Ex1
-func (p *Pow) sub1() func(*ebiten.Image) {
-	return p.Sub(
-		`Ты конечно помнишь, что умножение - это сложение одинаковых чисел.`,
-	)
+func (p *Pow) Subs(str string) func(*ebiten.Image) {
+	return p.Sub(str)
 }
 
-func (p *Pow) shape1(scr *ebiten.Image) {
-	p.PlayConShow()
-	p.Label(scr, "Степень", 30, 0, 0, clrs.YCC(p.clrY, 128, 128))
-}
-
-func (p *Pow) anim1() bool {
-	s := uint8(7)
-	if p.clrY < 255-s {
-		p.clrY += s
-		return false
-	}
-	return true
-}
-
-func (p *Pow) xact1() bool { return true }
-func (p *Pow) zero1() {}
-
-// ## Ex2
-func (p *Pow) sub2() func(*ebiten.Image) {
-	return p.Sub(
-		`Чему равно, скажем, пять умножить на три?`,
-	)
-}
-
-func (p *Pow) shape2(scr *ebiten.Image) {
-	s := "?"
-	if p.input > 0 { s = strconv.Itoa(p.input) }
-	p.Label(scr, "5·3 = " + s, 30, 0, 0, p.Clr)
-	p.NumPadShow()
-}
-
-func (p *Pow) anim2() bool { return true }
-
-// todo: not very good
-func (p *Pow) xact2() bool {
-	ans := 15
-	p.input = p.Input()
-	p.Erase()
-	correct, ok := p.Check(ans)
-	if correct && ok { p.check = true }
-	if p.check { p.NumPadHide() }
-	return p.check
-}
-
-func (p *Pow) zero2() {
-	p.check = false
-	p.NumPadHide()
-}
-
-/*func (p *Pow) xact2cl() func() bool {
-	ret := false
-
-	return func() bool {
-		ans = 15
-		if i, ok := inter.Number(); ok {
-			p.input = i + 10*p.input
+func (p *Pow) Shapes(sh parse.Shape) func(*ebiten.Image) {
+	return func(scr *ebiten.Image) {
+		p.PlayConShow()
+		if sh.IsEx() {
+			p.NumPadShow()
+		} else {
+			p.NumPadHide()
 		}
-		if inter.Enter() {
-			if p.input != ans {
-				p.PlayWrong()
-				return ret
-			}
-			p.PlayCorrect()
-			ret = true
+		for _, pl := range sh.Polys() {
+			crds := pl.Poly()
+			p.PolyEmp(scr, crds, clrs.Blue)
 		}
-		if ret { p.NumPadHide() }
-		return ret
+
+		for _, cr := range sh.Circles() {
+			x, y, r := cr.Circle()
+			p.CirEmp(scr, x, y, r, clrs.Green)
+		}
+
+		for _, lb := range sh.Labels() {
+			str, size, x, y := lb.Label()
+			if lb.IsEx() { str += strconv.Itoa(p.input) }
+			p.Label(scr, str, size, x, y, clrs.White)
+		}
 	}
-}//*/
-
-// ## Ex3
-func (p *Pow) sub3() func(*ebiten.Image) {
-	return p.Sub(
-		`Так вот, степень - это умножение одинаковых чисел.`,
-	)
 }
 
-func (p *Pow) shape3(scr *ebiten.Image) { p.shape1(scr) }
-func (p *Pow) anim3() bool { return true }
-func (p *Pow) xact3() bool { return true }
-func (p *Pow) zero3() {}
-
-// ## Ex4
-func (p *Pow) sub4() func(*ebiten.Image) {
-	return p.Sub(
-		`Пять в третьей это пять на пять на пять.`,
-	)
+func (p *Pow) Xacts(x parse.Xacts) func() bool {
+	return func () bool {
+		if x.IsEx() {
+			p.check = false
+		} else {
+			p.check = true
+			return p.check
+		}
+		p.input = p.Input()
+		p.Erase()
+		correct, ok := p.Check(int(x.AnsF()))
+		if correct && ok {
+			p.check = true
+			p.Next()
+			p.Play()
+		}
+		return p.check
+	}
 }
-
-func (p *Pow) shape4(scr *ebiten.Image) {
-	p.Label(scr, "5³ = 5·5·5", 30, 0, 0, p.Clr)
-}
-
-func (p *Pow) anim4() bool { return true }
-
-func (p *Pow) xact4() bool { return true }
-func (p *Pow) zero4() {}
-
-/*func (p *Pow) shape1(scr *ebiten.Image) {
-	p.Coords(scr, clrs.Green)
-
-	p.Arc(scr, 0, 0, p.r, 0, p.a1, p.Clr)
-	//p.Arrow(scr, 0, 0, 1.2*p.x, 1.2*p.y, clrs.White)
-	p.PolyEmp(scr, []float32{0, 0, p.x, p.y}, clrs.White)
-
-	//p.PolyEmp(scr, []float32{0, 0, x*1.5, y*1.5}, clrs.White)
-	//p.PolyEmp(scr, []float32{0, 0, r*1.5, 0}, clrs.White)
-
-	p.PolyEmp(scr, []float32{p.x, p.y, p.x, 0}, clrs.Blue)
-	p.PolyEmp(scr, []float32{p.x, p.y, 0, p.y}, clrs.Blue)
-
-	p.CirFull(scr, p.x, p.y, 4, clrs.White)
-	p.CirFull(scr, p.x,   0, 4, clrs.White)
-	p.CirFull(scr, 0,   p.y, 4, clrs.White)
-
-	p.Label(scr, "x", 15, p.x, -10, clrs.White)
-	p.Label(scr, "y", 15, 10, p.y, clrs.White)
-}//*/
-
-/*func (p *Pow) anim1() {
-		p.a2 += 0.02
-		p.xy()
-	if p.a2 >= 4*math.Pi { p.a2 = 2*math.Pi }
-	//if p.a2 >= 2.33*math.Pi { p.a2 = 2.33*math.Pi } else { p.a2 += 0.02 }
-}//*/
